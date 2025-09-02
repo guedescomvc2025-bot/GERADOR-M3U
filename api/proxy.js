@@ -28,9 +28,9 @@ module.exports = async (req, res) => {
         'Accept': 'application/json, text/plain, */*',
         'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
         'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      },
-      timeout: 10000
+        'Pragma': 'no-cache',
+        'Referer': 'https://google.com/'
+      }
     });
     
     if (!response.ok) {
