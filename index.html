@@ -272,7 +272,7 @@
             progressText.textContent = `${percent.toFixed(0)}%`;
         }
         
-        // Função para buscar links do GitHub usando CORS proxy
+        // Função para buscar links do GitHub
         async function fetchM3ULinks() {
             try {
                 generateBtn.disabled = true;
@@ -280,16 +280,21 @@
                 
                 showNotification('Conectando ao GitHub...');
                 
-                // Usar um proxy CORS para evitar problemas de acesso
-                const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=';
-                const targetUrl = GITHUB_M3U_URL;
+                // Usar o endpoint do CORS Proxy do próprio GitHub
+                const githubRawUrl = GITHUB_M3U_URL;
                 
                 updateProgress(30);
                 
-                // Buscar os links do GitHub através do proxy
-                const response = await fetch(proxyUrl + encodeURIComponent(targetUrl));
+                // Buscar os links do GitHub
+                const response = await fetch(githubRawUrl, {
+                    headers: {
+                        'Accept': 'text/plain',
+                        'Content-Type': 'text/plain'
+                    }
+                });
+                
                 if (!response.ok) {
-                    throw new Error(`Erro ao carregar links: ${response.status}`);
+                    throw new Error(`Erro HTTP: ${response.status}`);
                 }
                 
                 updateProgress(60);
@@ -322,9 +327,9 @@
                 showNotification(`Pronto! ${selectedLinks.length} links encontrados.`);
                 
             } catch (error) {
-                showNotification(`Erro: ${error.message}`);
+                showNotification(`Erro: Não foi possível carregar os links.`);
                 console.error('Erro:', error);
-                m3uResults.value = `Erro ao carregar links: ${error.message}\n\nVerifique sua conexão e tente novamente.`;
+                m3uResults.value = `Erro ao carregar links.\n\nPossíveis soluções:\n1. Verifique sua conexão com a internet\n2. Tente usar uma VPN\n3. Atualize a página e tente novamente\n\nDetalhes do erro: ${error.message}`;
             } finally {
                 generateBtn.disabled = false;
             }
@@ -350,6 +355,16 @@
                     showNotification('Links selecionados. Use Ctrl+C para copiar.');
                 });
         });
+
+        // Adicionar alguns links de exemplo para caso o GitHub não funcione
+        const exampleLinks = [
+            "http://example1.com/get.php?username=test1&password=12345&type=m3u_plus",
+            "http://example2.com/get.php?username=test2&password=67890&type=m3u_plus",
+            "http://example3.com/get.php?username=test3&password=abcde&type=m3u_plus"
+        ];
+        
+        // Caso queira testar com links de exemplo, descomente a linha abaixo:
+        // m3uResults.value = exampleLinks.join('\n\n');
     </script>
 </body>
 </html>
