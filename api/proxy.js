@@ -1,4 +1,6 @@
-export default async function handler(req, res) {
+const fetch = require('node-fetch');
+
+module.exports = async (req, res) => {
   // Habilitar CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -43,4 +45,4 @@ export default async function handler(req, res) {
     console.error('Proxy error:', error);
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }
-}
+};
