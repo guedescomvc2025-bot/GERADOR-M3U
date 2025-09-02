@@ -254,10 +254,7 @@
         const notification = document.getElementById('notification');
         
         // URL do GitHub com os links M3U
-        const GITHUB_M3U_URL = "https://raw.githubusercontent.com/guedescomvc2025-bot/LINKS-M3U/refs/heads/main/SUCCESS.txt";
-        
-        // Conjunto para evitar links duplicados
-        const uniqueLinks = new Set();
+        const GITHUB_M3U_URL = "https://raw.githubusercontent.com/guedescomvc2025-bot/LINKS-M3U/main/SUCCESS.txt";
         
         // Função para mostrar notificação
         function showNotification(message, duration = 3000) {
@@ -275,7 +272,7 @@
             progressText.textContent = `${percent.toFixed(0)}%`;
         }
         
-        // Função para buscar links do GitHub
+        // Função para buscar links do GitHub usando CORS proxy
         async function fetchM3ULinks() {
             try {
                 generateBtn.disabled = true;
@@ -283,13 +280,19 @@
                 
                 showNotification('Conectando ao GitHub...');
                 
-                // Buscar os links do GitHub
-                const response = await fetch(GITHUB_M3U_URL);
+                // Usar um proxy CORS para evitar problemas de acesso
+                const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=';
+                const targetUrl = GITHUB_M3U_URL;
+                
+                updateProgress(30);
+                
+                // Buscar os links do GitHub através do proxy
+                const response = await fetch(proxyUrl + encodeURIComponent(targetUrl));
                 if (!response.ok) {
                     throw new Error(`Erro ao carregar links: ${response.status}`);
                 }
                 
-                updateProgress(50);
+                updateProgress(60);
                 showNotification('Processando links...');
                 
                 const text = await response.text();
@@ -302,26 +305,26 @@
                 
                 updateProgress(80);
                 
-                // Adicionar links únicos
-                m3uLinks.forEach(link => uniqueLinks.add(link));
+                // Remover duplicatas usando Set
+                const uniqueLinks = [...new Set(m3uLinks)];
                 
-                // Converter para array e pegar apenas 10 links
-                const uniqueLinksArray = Array.from(uniqueLinks).slice(0, 10);
+                // Pegar apenas 10 links únicos
+                const selectedLinks = uniqueLinks.slice(0, 10);
                 
                 updateProgress(100);
                 
                 // Exibir os links na textarea
-                m3uResults.value = uniqueLinksArray.join('\n\n');
+                m3uResults.value = selectedLinks.join('\n\n');
                 
                 // Habilitar botão de copiar
-                copyAllBtn.disabled = false;
+                copyAllBtn.disabled = selectedLinks.length === 0;
                 
-                showNotification(`Pronto! ${uniqueLinksArray.length} links encontrados.`);
+                showNotification(`Pronto! ${selectedLinks.length} links encontrados.`);
                 
             } catch (error) {
                 showNotification(`Erro: ${error.message}`);
                 console.error('Erro:', error);
-                m3uResults.value = `Erro ao carregar links: ${error.message}`;
+                m3uResults.value = `Erro ao carregar links: ${error.message}\n\nVerifique sua conexão e tente novamente.`;
             } finally {
                 generateBtn.disabled = false;
             }
@@ -340,6 +343,11 @@
                 .catch(err => {
                     showNotification('Falha ao copiar os links.');
                     console.error('Falha ao copiar: ', err);
+                    
+                    // Fallback para seleção manual se clipboard API falhar
+                    m3uResults.select();
+                    document.execCommand('copy');
+                    showNotification('Links selecionados. Use Ctrl+C para copiar.');
                 });
         });
     </script>
