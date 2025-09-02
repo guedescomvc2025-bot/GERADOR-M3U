@@ -413,7 +413,6 @@
 
 <main>
   <form id="configForm" autocomplete="off" aria-label="Configurações do scanner">
-    <input type="text" id="playlistUrl" placeholder="Cole a URL da playlist aqui" />
     <button id="generateBtn" type="button">GERAR M3U</button>
   </form>
   
@@ -436,358 +435,390 @@
 <footer>FEITO POR DARK MENSAGEIRO</footer>
 <div id="notification" role="alert" aria-live="assertive"></div>
 <script>
-  // ===== CONSTANTES & ESTADOS =====
-  const stopBtn = document.getElementById('stopBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const exportBtn = document.getElementById('exportBtn');
-  const copyAllBtn = document.getElementById('copyAllBtn');
-  const generateBtn = document.getElementById('generateBtn');
-  const playlistUrlInput = document.getElementById('playlistUrl');
-  const resultsContainer = document.getElementById('results');
-  const notification = document.getElementById('notification');
-  const stats = {
-    totalHits: document.getElementById('totalHits'),
-    totalTested: document.getElementById('totalTested'),
-  };
+  // Lista de servidores Xtream Codes confirmados (atualizada)
+  const servers = [
+    "http://cdn.jccob.click",
+    "http://cinepulse.live",
+    "http://firetop1.site",
+    "http://kstv.us:8080",
+    "http://limed.cc",
+    "http://minhatv.eu",
+    "http://nitrohd.xyz",
+    "http://pfsv.io:80",
+    "http://pgzva.my",
+    "http://relogio10.top",
+    "http://vtrev.cc",
+    "http://xci.nz:80",
+    "http://brothersplay.com:80",
+    "http://dark.topk.live:80",
+    "http://dns.gpsrv.shop:80",
+    "http://hsgbola1.xyz",
+    "http://mamaodoce.online",
+    "http://saltbrth.xyz",
+    "http://touroboxv4.redemais.click:80",
+    "http://vela2b.sbs:80",
+    "http://vip.tvhome.click:80",
+    "http://x.mx51.online:80",
+    "http://pbkblack.site",
+    "http://cdn11.cc:80",
+    "http://fiufiu.live:80",
+    "http://hdtvs.top:80",
+    "http://holtcomfast.icu",
+    "http://oneplay.cc",
+    "http://v4.agenciav4.top",
+    "http://vyvofibra.us",
+    "http://b1.svb32fg.icu",
+    "http://axr7.one:80",
+    "http://bananadoce.online:80",
+    "http://lb01.site",
+    "http://hsgbola1.xyz:80",
+    "http://natkcz.xyz:80",
+    "http://oldmonkey.fun:80",
+    "http://a.mx51.online:80",
+    "http://buzbond.bond:80",
+    "http://familyplayy.top:80",
+    "http://levitashow.click:80",
+    "http://sw2z.in:80",
+    "http://jamboso.com",
+    "http://opaioo.com",
+    "http://gangaplayer.com:80",
+    "http://mixmil.cyou:80",
+    "http://sonicstream.shop:80",
+    "http://1296x.srvsh.xyz",
+    "http://12ww11.top",
+    "http://138.199.41.6:80",
+    "http://14225021914.com:80",
+    "http://149.18.18.90:80",
+    "http://15aera.xyz",
+    "http://15aera.xyz:80",
+    "http://178.162.193.239:2052",
+    "http://178.162.193.239:8080",
+    "http://178.162.197.167:2052",
+    "http://178.162.197.175",
+    "http://178.162.197.175:80",
+    "http://178.162.197.175:8080",
+    "http://178.162.197.184:2052",
+    "http://178.162.212.141:2052",
+    "http://178.162.212.150:2052",
+    "http://179.60.53.20:55577",
+    "http://185.194.204.156:80",
+    "http://1play.cool:8000",
+    "http://2.magmas5.com:8000",
+    "http://2.villevalo.pro",
+    "http://244a.cc:80",
+    "http://4.iptv11.is:80",
+    "http://4f.rs:80",
+    "http://4tv.site",
+    "http://4tv.site:80",
+    "http://5ce.co:80",
+    "http://5ce.me",
+    "http://5ce.me:80",
+    "http://5central.me",
+    "http://5central.me:80",
+    "http://5estrelas.top:80",
+    "http://5network.cyou",
+    "http://5network.cyou:80",
+    "http://5stak.xyz:80",
+    "http://6digital9.chocoplus.xyz:8080",
+    "http://7779rt.top",
+    "http://7779rt.top:80",
+    "http://7cdnmax.xyz:8080",
+    "http://7forever.xyz:80",
+    "http://7forever.xyz:8080",
+    "http://7max.top",
+    "http://7max.top:80",
+    "http://7max.top:8080",
+    "http://7online.xyz",
+    "http://7online.xyz:80",
+    "http://7rota1app.link",
+    "http://Cdnbrux.top",
+    "http://EXM3U.77xxs.xyz",
+    "http://Vis.blue:80",
+    "http://a.srvhib.com.br",
+    "http://ad44.shop:8080",
+    "http://amorvenceu.top:80",
+    "http://analov.lat",
+    "http://app.tecnomolly.com:8080",
+    "http://arrepiado.xyz",
+    "http://atlas06.xyz:80",
+    "http://bevolahouse.uk:8080",
+    "http://bgouv13.com:80",
+    "http://bincp.xyz",
+    "http://binwtorre.online:80",
+    "http://blogtiger.win:8080",
+    "http://bogotaresort.vip:8080",
+    "http://cairogroup.uk:8080",
+    "http://canal.cdntv.com.br:80",
+    "http://canexcorso.net:8080",
+    "http://cdn.xuiinstall.fun:80",
+    "http://cdn4k.info",
+    "http://cdn4k.us",
+    "http://cdn4k.vip:80",
+    "http://cdn7ever.xyz:80",
+    "http://cdn7light.xyz:80",
+    "http://cdn88.xyz",
+    "http://cinepulse.xyz:80",
+    "http://cldnew.com",
+    "http://cm1.portaltv.info:777",
+    "http://costela.top",
+    "http://cuvillier.gentv.to:8080",
+    "http://d.rodeo:80",
+    "http://dns.aipim.info:80",
+    "http://dns.aipim.info:8080",
+    "http://dns.ulttv.xyz",
+    "http://dnsbr.cloud",
+    "http://dnsbr.xyz",
+    "http://dnsrp.abre.xyz:80",
+    "http://dnssp.site:80",
+    "http://dsmar.mov:80",
+    "http://ecliente.xyz",
+    "http://fastream.xyz:8080",
+    "http://fastrunner.live:8080",
+    "http://fhdgdhg25.lat",
+    "http://gameplay.p2sweb.me",
+    "http://geniuscore.uk:8080",
+    "http://globe4.midomed.com:8883",
+    "http://golduhdtv.net",
+    "http://goodcine.my",
+    "http://gopro7.xyz",
+    "http://gopro7.xyz:8080",
+    "http://grtsv1.life",
+    "http://inter.natv.fm",
+    "http://invictosplay.xyz",
+    "http://kaantv.site:8000",
+    "http://kotkoyo.mine.nu:48028",
+    "http://kstv.us:80",
+    "http://ktm42.xyz:2052",
+    "http://letmein.fun:8080",
+    "http://llllllllliosdaiiii1iiiiiiiii.funtogether.xyz:8080",
+    "http://m1-max.dns-speedy.com",
+    "http://m3umais.ovh:8080",
+    "http://miotvtop.hdwcam.com:8080",
+    "http://motoplatxrd.com:80",
+    "http://natsdns.com:8080",
+    "http://newmundo.top:8880",
+    "http://nhflix.xyz",
+    "http://novo1.xyz:80",
+    "http://ottvision.xyz:8080",
+    "http://p1.proiptv.co:88",
+    "http://pegcv.xyz:8880",
+    "http://pfsrv.com:80",
+    "http://picapaunet.top:80",
+    "http://piratuga.xyz",
+    "http://play.biturl.vip",
+    "http://premiumtop.top:8080",
+    "http://proxy.cdn4k.vip",
+    "http://proxy.cdn4k.vip:80",
+    "http://pvsrvs.xyz:80",
+    "http://qacvz.my:80",
+    "http://radionivus.shop:80",
+    "http://ratomickey.eu",
+    "http://ratomickey.eu:8080",
+    "http://russofv.cc",
+    "http://serv1.xyz",
+    "http://server.iptvxxx.net",
+    "http://smdz.site",
+    "http://smt.appxc.top:80",
+    "http://snopy.mochaiptv.xyz:8000",
+    "http://sp.kiwi:80",
+    "http://srv.hostinggon.xyz:2095",
+    "http://srv.hostinggon12.xyz",
+    "http://srv.hostinggon15.xyz",
+    "http://srv.hostinggon39.xyz",
+    "http://srv.polkafood.pl:80",
+    "http://srvdp.me",
+    "http://srvtop.cloud:80",
+    "http://starplaybr.online:80",
+    "http://supersonictv.live:8080",
+    "http://techplay.click",
+    "http://techplay.click:80",
+    "http://telecine.asia",
+    "http://terenet.net:80",
+    "http://topserver.fun:80",
+    "http://tv.com.vc",
+    "http://tv.dimaiptv.com:8080",
+    "http://tv1.my:80",
+    "http://tv5.me:80",
+    "http://tv5.me:80",
+    "http://tvlg.appxc.top",
+    "http://ust.lat",
+    "http://veloz.dnstv.uk:80",
+    "http://vip.dom1tv.com",
+    "http://vivaoavida.xyz",
+    "http://wolftkxz.xyz:80",
+    "http://world-qualite.xyz:8080",
+    "http://xp2.wtf",
+    "http://cdn22.cc:80",
+    "http://rtdkh.xyz:80",
+    "http://cms-central.co",
+    "http://gurutuga.pw:8080",
+    "http://bcltop.online",
+    "http://dns.3558510632.click:80",
+    "http://dns.gerenciadorr8.top",
+    "http://livraria.fun:80",
+    "http://opdestiny.top:80",
+    "http://pfsv.io",
+    "http://sualista.xyz",
+    "http://tucxs.click",
+    "http://v4.agenciav4.top:80",
+    "http://veloz.tvbrlive.com",
+    "http://voxp2p.live",
+    "http://xuione.icu:80",
+    "http://agrtv.click:80",
+    "http://cgpdok.xyz:80",
+    "http://amplay.lat:80",
+    "http://maisonxp.click:8080",
+    "http://mistertech.click:80",
+    "http://tvsbt.top:80",
+    "http://vdeos.pics:80",
+    "http://horizon25.shop",
+    "http://cdn.proxybrasilctvp2.com.br",
+    "http://cdn018.io",
+    "http://cdn11.cc",
+    "http://cdn22.cc",
+    "http://cdn33.cc",
+    "http://cdn45.cc",
+    "http://cdn46.cc",
+    "http://cdn49.cc",
+    "http://cdwmed.xyz",
+    "http://cinefull.space",
+    "http://cliente33.com",
+    "http://cnaxtrax.com",
+    "http://coco-cdn2.cc",
+    "http://dnscine.top:80",
+    "http://jamboso.com:80",
+    "http://sskkdk.srv1ydfg.icu:80",
+    "http://bananadoce.online",
+    "http://felas87dz.icu",
+    "http://steamtv.site",
+    "http://supg.nl",
+    "http://telefone.site:80",
+    "http://turbo.gftv.in:80",
+    "http://viphlvp.xyz:8080",
+    "http://virtusz.zapto.org:80",
+    "http://vmw12.com:80",
+    "http://x2caverinhas.store",
+    "http://xcloudcine.xyz:80",
+    "http://z3.bgts37bc.icu",
+    "http://b1.svb32fg.icu:80",
+    "http://btpx.store:80",
+    "http://bullbr.xyz:80",
+    "http://carabina.pro:80",
+    "http://cdn.jccob.click:80",
+    "http://cdnrptv.com:80",
+    "http://cgpdok.xyz",
+    "http://cinepulse.live:80",
+    "http://ctbnotas.xyz",
+    "http://dns.masteron.fun:80",
+    "http://dns.play-tv.live:80",
+    "http://eckgo.xyz",
+    "http://firetop1.site:80",
+    "http://globalsuper.site:80",
+    "http://gw38.site",
+    "http://hmiguel5.org:80",
+    "http://huloftibu.lol",
+    "http://jctv.drivecar.click:80",
+    "http://jrplay.online:80",
+    "http://lb01.site:80",
+    "http://mw3.tvzinha.org:8080",
+    "http://nandovip.xyz",
+    "http://newoneblack.site",
+    "http://newoneblack.site:80",
+    "http://norrfqf.top:8080",
+    "http://oax.life",
+    "http://rgdtuner.xyz",
+    "http://s.abapx.in:80",
+    "http://sandertvcl.com:8080",
+    "http://semprea100.org:8080",
+    "http://sep22x.in:80",
+    "http://smartvtcl.site:8080",
+    "http://smt.appxc.top",
+    "http://srvplay.live:80",
+    "http://ad3xiy.xyz:80",
+    "http://cbvc.xyz:80",
+    "http://dns.acaidopara.net:80",
+    "http://horizon25.shop:80",
+    "http://alpacinoo.com",
+    "http://carabina.pro",
+    "http://halamix.in:80",
+    "http://omelhor.sucodefruta.xyz",
+    "http://rnplay07.vip",
+    "http://v220xpco.com:80",
+    "http://c.maintech.top",
+    "http://cdn.ax66.shop",
+    "http://gestor.mom"
+  ];
   
-  let resultsHits = [];
-  let stopRequested = false;
-  let totalHits = 0;
-  let totalTested = 0;
-
-  // Função para mostrar notificação visual e sonora
-  function showNotification(msg, duration = 5000) {
-    notification.textContent = msg;
-    notification.classList.add('show');
-    try {
-      const audioCtx = new AudioContext();
-      const oscillator = audioCtx.createOscillator();
-      oscillator.type = 'triangle';
-      oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
-      oscillator.connect(audioCtx.destination);
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.15);
-    } catch {}
-    setTimeout(() => {
-      notification.classList.remove('show');
-    }, duration);
-  }
-  
-  // Função delay util
-  function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-  
-  // ===== FUNÇÃO PARA COPIAR TEXTO COM FALLBACK =====
-  function copyToClipboard(text) {
-    return new Promise((resolve, reject) => {
-      // Tentar usar a API moderna do clipboard
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text)
-          .then(() => resolve(true))
-          .catch(err => {
-            console.error('Erro ao copiar com API moderna:', err);
-            // Fallback para método antigo
-            fallbackCopyTextToClipboard(text, resolve, reject);
-          });
-      } else {
-        // Usar método antigo diretamente se a API não estiver disponível
-        fallbackCopyTextToClipboard(text, resolve, reject);
-      }
-    });
-  }
-  
-  // ===== MÉTODO ANTIGO DE COPIA (FALLBACK) =====
-  function fallbackCopyTextToClipboard(text, resolve, reject) {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    
-    // Evitar rolagem para o elemento
-    textArea.style.position = "fixed";
-    textArea.style.top = 0;
-    textArea.style.left = 0;
-    textArea.style.width = "2em";
-    textArea.style.height = "2em";
-    textArea.style.padding = 0;
-    textArea.style.border = "none";
-    textArea.style.outline = "none";
-    textArea.style.boxShadow = "none";
-    textArea.style.background = "transparent";
-    textArea.style.opacity = "0";
-    
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    
-    try {
-      const successful = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      
-      if (successful) {
-        resolve(true);
-      } else {
-        reject(new Error('Não foi possível copiar o texto'));
-      }
-    } catch (err) {
-      document.body.removeChild(textArea);
-      reject(err);
-    }
-  }
-  
-  // ===== FUNÇÃO PARA RENDERIZAR UM HIT NA TELA =====
-  function renderHit(hit, index) {
-    const { url, name } = hit;
-    
-    // Cria div item
-    const div = document.createElement('div');
-    div.className = 'hit-item';
-    div.setAttribute('tabindex', '0');
-    div.setAttribute('aria-label', `Canal: ${name}`);
-    
-    // Conteúdo do hit
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'hit-content';
-    contentDiv.textContent = `📺 ${name || 'Canal sem nome'}`;
-    div.appendChild(contentDiv);
-    
-    // Botão de copiar
-    const btnCopy = document.createElement('button');
-    btnCopy.textContent = '📋';
-    btnCopy.title = 'Copiar este link';
-    btnCopy.setAttribute('aria-label', `Copiar link M3U do canal ${name}`);
-    
-    btnCopy.onclick = () => {
-      copyToClipboard(url)
-        .then(() => {
-          showNotification(`Link copiado! Canal: ${name}`);
-        })
-        .catch(err => {
-          console.error('Erro ao copiar:', err);
-          showNotification('Falha ao copiar. Tente novamente.');
-        });
-    };
-    
-    const btnContainer = document.createElement('div');
-    btnContainer.className = 'hit-actions';
-    btnContainer.appendChild(btnCopy);
-    div.appendChild(btnContainer);
-    
-    return div;
-  }
-  
-  // ===== SHOW ESTATÍSTICAS =====
-  function updateStats() {
-    stats.totalHits.textContent = `Canais: ${totalHits}`;
-    stats.totalTested.textContent = `Processados: ${totalTested}`;
-  }
-  
-  // ===== PROCESSAR M3U =====
-  async function processM3U(url) {
-    if (stopRequested) return;
-    
-    try {
-      // Usar nosso proxy local para acessar a playlist
-      const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
-      
-      // Fazer requisição para obter a playlist
-      const response = await fetch(proxyUrl, {
-        headers: { 
-          'Accept': 'application/x-mpegurl, text/plain, */*',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        cache: 'no-store'
-      });
-      
-      // Verificar se a resposta foi bem-sucedida
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      // Obter o texto da playlist
-      const playlistText = await response.text();
-      
-      // Processar a playlist M3U
-      const lines = playlistText.split('\n');
-      const channels = [];
-      let currentChannel = {};
-      
-      for (const line of lines) {
-        if (line.startsWith('#EXTINF:')) {
-          // Esta linha contém informações do canal
-          const match = line.match(/#EXTINF:-1(?:\s+tvg-id="[^"]*")?(?:\s+tvg-name="[^"]*")?(?:\s+tvg-logo="[^"]*")?(?:\s+group-title="[^"]*")?,(.*)/);
-          if (match) {
-            currentChannel.name = match[1].trim();
-          }
-        } else if (line.startsWith('http')) {
-          // Esta linha é a URL do canal
-          currentChannel.url = line.trim();
-          channels.push(currentChannel);
-          currentChannel = {};
-        }
-        
-        // Atualizar contador de processados
-        totalTested++;
-        updateStats();
-        
-        // Pequeno delay para não sobrecarregar a UI
-        await delay(10);
-        if (stopRequested) break;
-      }
-      
-      return channels;
-    } catch (error) {
-      console.error('Erro ao processar M3U:', error);
-      throw error;
-    }
-  }
-  
-  // ===== INICIA O PROCESSAMENTO DA PLAYLIST =====
-  async function startProcessing() {
-    const url = playlistUrlInput.value.trim();
-    
-    if (!url) {
-      showNotification('Por favor, insira uma URL válida.');
-      return;
-    }
-    
-    // Reseta estado
-    stopRequested = false;
-    totalHits = 0;
-    totalTested = 0;
-    resultsHits = [];
-    resultsContainer.innerHTML = '';
-    updateStats();
-    
-    generateBtn.disabled = true;
-    stopBtn.disabled = false;
-    exportBtn.disabled = true;
-    copyAllBtn.disabled = true;
-    
-    try {
-      // Processar a playlist M3U
-      const channels = await processM3U(url);
-      
-      if (stopRequested) {
-        showNotification('Processamento interrompido.');
-        return;
-      }
-      
-      // Adicionar canais aos resultados
-      resultsHits = channels;
-      totalHits = channels.length;
-      
-      // Renderizar canais na UI (limitar a 20 para performance)
-      const maxDisplay = Math.min(20, channels.length);
-      for (let i = 0; i < maxDisplay; i++) {
-        const channel = channels[i];
-        const channelElement = renderHit(channel, i);
-        resultsContainer.appendChild(channelElement);
-      }
-      
-      if (channels.length > 20) {
-        const moreElement = document.createElement('div');
-        moreElement.className = 'hit-item';
-        moreElement.textContent = `... e mais ${channels.length - 20} canais`;
-        resultsContainer.appendChild(moreElement);
-      }
-      
-      // Atualizar estatísticas
-      updateStats();
-      
-      // Habilitar botões de exportação
-      exportBtn.disabled = false;
-      copyAllBtn.disabled = false;
-      
-      showNotification(`Playlist processada! ${totalHits} canais encontrados.`, 7000);
-    } catch (error) {
-      console.error('Erro:', error);
-      showNotification(`Erro ao processar a playlist: ${error.message}`);
-    } finally {
-      generateBtn.disabled = false;
-      stopBtn.disabled = true;
-    }
-  }
-  
-  // ===== LIMPA RESULTADOS E ESTADO DA UI =====
-  function clearResults() {
-    stopRequested = true;
-    resultsHits = [];
-    resultsContainer.innerHTML = '';
-    totalHits = 0;
-    totalTested = 0;
-    updateStats();
-    generateBtn.disabled = false;
-    stopBtn.disabled = true;
-    exportBtn.disabled = true;
-    copyAllBtn.disabled = true;
-  }
-  
-  // ===== EXPORTAR HITS PARA TXT =====
-  function exportHits() {
-    if (resultsHits.length === 0) {
-      alert('Nenhum canal para exportar.');
-      return;
-    }
-    
-    const lines = resultsHits.map(h => `#EXTINF:-1,${h.name}\n${h.url}`);
-    const content = '#EXTM3U\n' + lines.join('\n');
-    
-    const blob = new Blob([content], {type: "text/plain;charset=utf-8"});
-    const url = URL.createObjectURL(blob);
-    // Criar link para download
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `playlist-${new Date().toISOString().slice(0,10)}.m3u`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-  
-  // ===== COPIAR TODOS OS HITS =====
-  function copyAllHits() {
-    if (resultsHits.length === 0) {
-      alert('Nenhum canal para copiar.');
-      return;
-    }
-    
-    const lines = resultsHits.map(h => `#EXTINF:-1,${h.name}\n${h.url}`);
-    const content = '#EXTM3U\n' + lines.join('\n');
-    
-    copyToClipboard(content)
-      .then(() => {
-        showNotification('Playlist copiada para a área de transferência!');
-      })
-      .catch(err => {
-        console.error('Erro ao copiar a playlist:', err);
-        showNotification('Falha ao copiar. Tente novamente ou use a opção de exportar.');
-      });
-  }
-  
-  // ===== EVENT LISTENERS =====
-  generateBtn.addEventListener('click', startProcessing);
-  
-  stopBtn.addEventListener('click', () => {
-    stopRequested = true;
-    stopBtn.disabled = true;
-    generateBtn.disabled = false;
-    showNotification('Processamento interrompido.');
-  });
-  
-  clearBtn.addEventListener('click', () => {
-    clearResults();
-    showNotification('Resultados limpos.');
-  });
-  
-  exportBtn.addEventListener('click', exportHits);
-  copyAllBtn.addEventListener('click', copyAllHits);
-  
-  // ===== ACESSIBILIDADE =====
-  // Define foco no container de resultados para leitores de tela
-  resultsContainer.setAttribute('tabindex', '0');
-  
-  // Exemplo de URL pré-preenchida para testes
-  window.addEventListener('load', () => {
-    // playlistUrlInput.value = 'https://example.com/playlist.m3u';
-  });
-</script>
-</body>
-</html>
+  // Lista de combos comuns (baseado em pesquisas na web)
+  const commonCombos = [
+    "test:test",
+    "demo:demo",
+    "admin:admin",
+    "user:pass",
+    "1234:1234",
+    "1111:1111",
+    "0000:0000",
+    "guest:guest",
+    "free:free",
+    "trial:trial",
+    "teste:teste",
+    "usuario:senha",
+    "root:root",
+    "client:client",
+    "m3u:m3u",
+    "iptv:iptv",
+    "stream:stream",
+    "tv:tv",
+    "123:123",
+    "1:1",
+    "a:a",
+    "b:b",
+    "c:c",
+    "d:d",
+    "e:e",
+    "f:f",
+    "g:g",
+    "h:h",
+    "i:i",
+    "j:j",
+    "k:k",
+    "l:l",
+    "m:m",
+    "n:n",
+    "o:o",
+    "p:p",
+    "q:q",
+    "r:r",
+    "s:s",
+    "t:t",
+    "u:u",
+    "v:v",
+    "w:w",
+    "x:x",
+    "y:y",
+    "z:z",
+    "abc:abc",
+    "qwe:qwe",
+    "asd:asd",
+    "zxc:zxc",
+    "12345:12345",
+    "54321:54321",
+    "qwerty:qwerty",
+    "password:password",
+    "123456:123456",
+    "12345678:12345678",
+    "123456789:123456789",
+    "1234567890:1234567890",
+    "admin123:admin123",
+    "root123:root123",
+    "user123:user123",
+    "pass123:pass123",
+    "test123:test123",
+    "demo123:demo123",
+    "guest123:guest123",
+    "free123:free123",
+    "trial123:trial123",
+    "temp:temp",
+    "temp123:temp123",
+    "temporary:temporary",
+    "
